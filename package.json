@@ -2,7 +2,7 @@
   "name": "express-mongodb-jwt",
   "version": "1.0.0",
   "description": "This is a base auth project with express js, mongoDB and jwt",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
