@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/Juhi0326/node-express-mongoDb-jwt/issues"
   },
-  "homepage": "https://github.com/Juhi0326/node-express-mongoDb-jwt#readme"
+  "homepage": "https://github.com/Juhi0326/node-express-mongoDb-jwt#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
