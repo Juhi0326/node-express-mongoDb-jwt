@@ -1,0 +1,27 @@
+{
+  "name": "express-mongodb-jwt",
+  "version": "1.0.0",
+  "description": "This is a base auth project with express js, mongoDB and jwt",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juhi0326/node-express-mongoDb-jwt.git"
+  },
+  "keywords": [
+    "jwt",
+    "node",
+    "js",
+    "express",
+    "js",
+    "mongoDB"
+  ],
+  "author": "Juhi0326",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Juhi0326/node-express-mongoDb-jwt/issues"
+  },
+  "homepage": "https://github.com/Juhi0326/node-express-mongoDb-jwt#readme"
+}
