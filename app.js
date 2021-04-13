@@ -2,7 +2,19 @@ const express = require("express");
 const app = express();
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orders");
+const mongoose = require('mongoose');
 const morgan = require("morgan");
+require('dotenv').config();
+
+
+// database connection
+const dbURI = `mongodb+srv://juhi:${process.env.dbPass}@cluster0.hnfsi.mongodb.net/express-API?retryWrites=true&w=majority`;
+
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
+  .then((result) => {
+  console.log('db connected');
+}).catch((err) => console.log(err));
+
 
 app.use(morgan("dev"));
 
