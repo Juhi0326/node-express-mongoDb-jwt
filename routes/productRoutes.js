@@ -6,24 +6,24 @@ const Product = require("../models/product");
 
 router.get("/", (req, res, next) => {
   Product.find()
-    .select('name price _id')
+    .select("name price _id")
     .exec()
     .then((docs) => {
-        const response = {
-            count: docs.length,
-            products: docs.map(doc => {
-                return {
-                    name: doc.name,
-                    price: doc.price,
-                    _id: doc._id,
-                    request: {
-                        type: "GET",
-                        url: "http://localhost:8081/products/" + doc._id
-                    }
-                }
-            })
-        };
-        res.status(200).json(response);
+      const response = {
+        count: docs.length,
+        products: docs.map((doc) => {
+          return {
+            name: doc.name,
+            price: doc.price,
+            _id: doc._id,
+            request: {
+              type: "GET",
+              url: "http://localhost:8081/products/" + doc._id,
+            },
+          };
+        }),
+      };
+      res.status(200).json(response);
     })
     .catch((err) => {
       res.status(500).json({
@@ -45,14 +45,14 @@ router.post("/", (req, res, next) => {
       res.status(201).json({
         message: "Created new product successfully!",
         createdProduct: {
-            name: result.name,
-            price: result.price,
-            id: result._id,
-            request: {
-                type: 'GET',
-                url: "http://localhost:8081/products/" + result._id
-            }
-        }
+          name: result.name,
+          price: result.price,
+          id: result._id,
+          request: {
+            type: "GET",
+            url: "http://localhost:8081/products/" + result._id,
+          },
+        },
       });
     })
     .catch((err) => {
@@ -66,17 +66,17 @@ router.post("/", (req, res, next) => {
 router.get("/:productId", (req, res, next) => {
   const id = req.params.productId;
   Product.findById(id)
-    .select('-_v')
+    .select("-_v")
     .exec()
     .then((doc) => {
       if (doc) {
         console.log(doc);
         res.status(200).json({
-            product: doc,
-            request: {
-                type: 'GET',
-                url: 'http://localhost:8081/products'
-            }
+          product: doc,
+          request: {
+            type: "GET",
+            url: "http://localhost:8081/products",
+          },
         });
       } else {
         res.status(404).json({
@@ -100,46 +100,46 @@ router.patch("/:productId", (req, res, next) => {
   */
   const updateOps = {};
   for (const ops of req.body) {
-      updateOps[ops.propName] = ops.value;
+    updateOps[ops.propName] = ops.value;
   }
-  Product.updateOne({_id: id}, {$set: updateOps})
-  .exec()
-  .then((result) => {
+  Product.updateOne({ _id: id }, { $set: updateOps })
+    .exec()
+    .then((result) => {
       res.status(200).json({
-          message: 'Product updated',
-          request: {
-              type: 'PATCH',
-              url: 'http://localhost:8081/products/' + id
-          }
+        message: "Product updated",
+        request: {
+          type: "PATCH",
+          url: "http://localhost:8081/products/" + id,
+        },
       });
-  })
-  .catch((err) => {
+    })
+    .catch((err) => {
       res.status(500).json({
-          Error: err
-      })
-  })
+        Error: err,
+      });
+    });
 });
 
 router.delete("/:productId", (req, res, next) => {
   const id = req.params.productId;
-  Product.deleteOne({_id: id})
-  .exec()
-  .then((result) => {
+  Product.deleteOne({ _id: id })
+    .exec()
+    .then((result) => {
       res.status(200).json({
-          message: 'product deleted successfully!',
-          request: {
-              type: 'DELETE',
-              url: 'http://localhost:8081/products',
-              body: {name: 'String', price: 'Number'},
-              id: id
-          }
+        message: "product deleted successfully!",
+        request: {
+          type: "DELETE",
+          url: "http://localhost:8081/products",
+          body: { name: "String", price: "Number" },
+          id: id,
+        },
       });
-  })
-  .catch((err) => {
+    })
+    .catch((err) => {
       res.status(500).json({
-          Error: err
-      })
-  })
+        Error: err,
+      });
+    });
 });
 
 module.exports = router;
