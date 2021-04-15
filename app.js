@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orders");
+const userRoutes = require('./routes/users');
 const mongoose = require('mongoose');
 const morgan = require("morgan");
 require('dotenv').config();
@@ -36,6 +37,7 @@ app.use((req, res, next) => {
 
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
+app.use('/users', userRoutes);
 
 app.use((req, res, next) => {
   const error = new Error("page not found");
