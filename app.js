@@ -17,6 +17,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
 
 
 app.use(morgan("dev"));
+app.use('/uploads', express.static('uploads'));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
