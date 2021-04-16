@@ -161,30 +161,33 @@ router.delete("/:productId", authMiddleware, (req, res, next) => {
         messages: 'there is not a product with this id!'
       })
     }
+    else {
+      Product.deleteOne({ _id: id })
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: "product deleted successfully!",
+          request: {
+            type: "DELETE",
+            url: "http://localhost:8081/products",
+            body: { name: "String", price: "Number" },
+            id: id,
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
+      });
+    }
   })
   .catch(err => {
     return res.status(500).json({
      Error: err
     })
   })
-  Product.deleteOne({ _id: id })
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: "product deleted successfully!",
-        request: {
-          type: "DELETE",
-          url: "http://localhost:8081/products",
-          body: { name: "String", price: "Number" },
-          id: id,
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        Error: err,
-      });
-    });
+ 
 });
 
 module.exports = router;
