@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const authMiddleware = require('../middleware/auth');
 
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-router.get("/", (req, res, next) => {
+router.get("/", authMiddleware, (req, res, next) => {
   Order.find()
     .populate("product", "-__v")
     .select("-_v")
@@ -32,7 +33,7 @@ router.get("/", (req, res, next) => {
       });
     });
 });
-router.post("/", (req, res, next) => {
+router.post("/", authMiddleware, (req, res, next) => {
   Product.findById(req.body.productId)
     .then((product) => {
       if (!product) {
@@ -70,7 +71,7 @@ router.post("/", (req, res, next) => {
     });
 });
 
-router.get("/:orderId", (req, res, next) => {
+router.get("/:orderId", authMiddleware, (req, res, next) => {
   Order.findById(req.params.orderId)
     .populate("product", "-__v")
     .exec()
@@ -96,7 +97,7 @@ router.get("/:orderId", (req, res, next) => {
     });
 });
 
-router.patch("/:orderId", (req, res, next) => {
+router.patch("/:orderId", authMiddleware, (req, res, next) => {
   const id = req.params.orderId;
   /*
     így kell lekérni postman-ből:
@@ -127,7 +128,7 @@ router.patch("/:orderId", (req, res, next) => {
     });
 });
 
-router.delete("/:orderId", (req, res, next) => {
+router.delete("/:orderId", authMiddleware, (req, res, next) => {
   Order.deleteOne({ _id: req.params.orderId })
     .exec()
     .then((order) => {
