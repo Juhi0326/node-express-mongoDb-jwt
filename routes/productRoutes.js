@@ -153,6 +153,20 @@ router.patch("/:productId", authMiddleware, (req, res, next) => {
 
 router.delete("/:productId", authMiddleware, (req, res, next) => {
   const id = req.params.productId;
+  Product.findById(id)
+  .exec()
+  .then(product => {
+    if (!product) {
+      return res.status(404).json({
+        messages: 'there is not a product with this id!'
+      })
+    }
+  })
+  .catch(err => {
+    return res.status(500).json({
+     Error: err
+    })
+  })
   Product.deleteOne({ _id: id })
     .exec()
     .then((result) => {
