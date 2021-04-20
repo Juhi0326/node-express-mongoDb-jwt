@@ -9,13 +9,12 @@ const userSchema = mongoose.Schema({
     
     },
     password: { type: String, required: true},
-    roles: [
+    role: 
         {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Role"
+          type: String,
+          ref: "Role",
+          enum: ['user', 'moderator', 'admin']
         }
-      ]
-
 });
 
 module.exports = mongoose.model('User', userSchema);
