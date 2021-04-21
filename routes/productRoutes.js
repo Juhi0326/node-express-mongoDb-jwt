@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const multer = require('multer');
-const authMiddleware = require('../middleware/auth');
 const adminAuthMiddleware = require('../middleware/authAdmin');
 const productController = require('../controllers/products');
 
@@ -32,16 +31,14 @@ const upload = multer({
     fileFilter: fileFilter
 });
 
-const Product = require("../models/product");
-
 router.get("/", productController.product_get_all);
 
 router.post("/",adminAuthMiddleware, upload.single('productImage'), productController.product_create);
 
 router.get("/:productId", productController.product_get_one_ById);
 
-router.patch("/:productId", authMiddleware, productController.product_update_byId);
+router.patch("/:productId", adminAuthMiddleware, productController.product_update_byId);
 
-router.delete("/:productId", authMiddleware, productController.product_delete_byId);
+router.delete("/:productId", adminAuthMiddleware, productController.product_delete_byId);
 
 module.exports = router;
