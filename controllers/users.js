@@ -61,10 +61,12 @@ exports.user_login = (req, res, next) => {
           });
         }
         if (result) {
+          console.log(user[0].role)
           const token = jwt.sign(
             {
               email: user[0].email,
               userId: user[0]._id,
+              role: user[0].role
             },
             process.env.secret_JWT_KEY,
             { expiresIn: "1h" }
@@ -73,6 +75,7 @@ exports.user_login = (req, res, next) => {
           return res.status(200).json({
             message: "Auth successful",
             token,
+            role: user[0].role
           });
         }
         res.status(404).json({
