@@ -24,6 +24,7 @@ exports.user_signUp = (req, res, next) => {
               _id: new mongoose.Types.ObjectId(),
               email: req.body.email,
               password: hash,
+              role: req.body.role
             });
             user
               .save()
