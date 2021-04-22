@@ -3,6 +3,7 @@ const app = express();
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orders");
 const userRoutes = require('./routes/users');
+const homeRoute= require('./routes/home');
 const mongoose = require('mongoose');
 const morgan = require("morgan");
 require('dotenv').config();
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/home", homeRoute);
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 app.use('/users', userRoutes);
