@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
-    //.select("-_v")
+    .select("-_v")
     .exec()
     .then((docs) => {
       console.log(docs[0]);
@@ -18,7 +18,8 @@ exports.homePage_get_all = (req, res, next) => {
             Section_1: doc.Section_1,
             Section_2: doc.Section_2,
             Section_3: doc.Section_3,
-            Section_4: doc.Section_4,
+            Section_4: doc.Section_4,            
+            Picture: doc.Picture,
             _id: doc._id,
             request: {
               type: "GET",
@@ -55,6 +56,7 @@ exports.homePage_create = (req, res, next) => {
           Section_2: req.body.Section_2,
           Section_3: req.body.Section_3,
           Section_4: req.body.Section_4,
+          Picture: req.file.path,
         });
         homePage
           .save()
@@ -71,8 +73,10 @@ exports.homePage_create = (req, res, next) => {
                 Section_3: result.Section_3,
                 Section_4: result.Section_4,
                 id: result._id,
+                Picture: result.Picture,
                 request: {
                   type: "GET",
+                  url: "http://localhost:8081/home" 
                 },
               },
             });
