@@ -106,12 +106,10 @@ exports.homePage_update = (req, res, next) => {
         let directory_name =
           "C:/Users/juhi0/OneDrive/Dokumentumok/Node js/node-express-mongoDb-jwt/uploads";
         let filenames = fs.readdirSync(directory_name);
-
-        console.log("\nFilenames in directory:");
         filenames.forEach((file) => {
           let dot = file.indexOf(".");
           let pic = file.substring(0, dot);
-          pic == newPicture ? (target = true) : console.log("");
+          pic == newPicture ? (target = true) : newPicture = newPicture;
         });
       }
     });
