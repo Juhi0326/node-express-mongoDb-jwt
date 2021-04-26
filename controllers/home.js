@@ -1,5 +1,6 @@
 const HomePage = require("../models/homePage");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
@@ -18,7 +19,7 @@ exports.homePage_get_all = (req, res, next) => {
             Section_1: doc.Section_1,
             Section_2: doc.Section_2,
             Section_3: doc.Section_3,
-            Section_4: doc.Section_4,            
+            Section_4: doc.Section_4,
             Picture: doc.Picture,
             _id: doc._id,
             request: {
@@ -76,7 +77,7 @@ exports.homePage_create = (req, res, next) => {
                 Picture: result.Picture,
                 request: {
                   type: "GET",
-                  url: "http://localhost:8081/home" 
+                  url: "http://localhost:8081/home",
                 },
               },
             });
@@ -92,47 +93,77 @@ exports.homePage_create = (req, res, next) => {
 };
 
 exports.homePage_update = (req, res, next) => {
-  HomePage.find()
-    .exec()
-    .then((docs) => {
-      if (docs.length < 0) {
-        res.status(404).json({
-          message: "Nincs még home page, hozz létre egyet.",
+  let target = false;
+  let yourArray = req.body;
+  yourArray.forEach(function (arrayItem) {
+    Object.keys(arrayItem).forEach((key) => {
+      if (arrayItem[key] === "Picture") {
+        let newPicture = "";
+        newPicture = arrayItem.value;
+        let dot = newPicture.indexOf(".");
+        newPicture = newPicture.substring(8, dot);
+
+        let directory_name =
+          "C:/Users/juhi0/OneDrive/Dokumentumok/Node js/node-express-mongoDb-jwt/uploads";
+        let filenames = fs.readdirSync(directory_name);
+
+        console.log("\nFilenames in directory:");
+        filenames.forEach((file) => {
+          let dot = file.indexOf(".");
+          let pic = file.substring(0, dot);
+          pic == newPicture ? (target = true) : console.log("");
         });
-      } else {
-        const id = docs[0]._id;
-        /*
+      }
+    });
+  });
+
+  if (target === false) {
+    res.status(404).json({
+      message: "there is not a picture with this file name!",
+    });
+  } else {
+    HomePage.find()
+      .exec()
+      .then((docs) => {
+        if (docs.length < 0) {
+          res.status(404).json({
+            message: "Nincs még home page, hozz létre egyet.",
+          });
+        } else {
+          const id = docs[0]._id;
+          /*
           így kell lekérni postman-ből:
           [{"propName" : "name", "value": "Mikrohullámú Sütő"}
         ]
           */
-        const updateOps = {};
-        console.log(req.body);
-        for (const ops of req.body) {
-          updateOps[ops.propName] = ops.value;
+          const updateOps = {};
+          console.log(req.body);
+          for (const ops of req.body) {
+            updateOps[ops.propName] = ops.value;
+          }
+          HomePage.updateOne({ _id: id }, { $set: updateOps })
+            .exec()
+            .then((result) => {
+              res.status(200).json({
+                message: "Home Page updated",
+                request: {
+                  type: "PATCH",
+                },
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                Error: err,
+              });
+            });
         }
-        HomePage.updateOne({ _id: id }, { $set: updateOps })
-          .exec()
-          .then((result) => {
-            res.status(200).json({
-              message: "Home Page updated",
-              request: {
-                type: "PATCH",
-              },
-            });
-          })
-          .catch((err) => {
-            res.status(500).json({
-              Error: err,
-            });
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(500).json({
-        Error: err,
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
       });
-    });
+  }
 };
 
 exports.homePage_delete = (req, res, next) => {
