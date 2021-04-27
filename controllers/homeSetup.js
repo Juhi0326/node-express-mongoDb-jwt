@@ -94,9 +94,8 @@ exports.homePage_create = (req, res, next) => {
 
 exports.homePage_update = (req, res, next) => {
   //check request picture
-  let target = false;
-  let yourArray = req.body;
-  yourArray.forEach(function (arrayItem) {
+  let target = null;
+  req.body.forEach(function (arrayItem) {
     Object.keys(arrayItem).forEach((key) => {
       if (arrayItem[key] === "Picture") {
         let newPicture = "";

@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 exports.product_get_all = (req, res, next) => {
   Product.find()
@@ -92,32 +93,59 @@ exports.product_get_one_ById = (req, res, next) => {
 };
 
 exports.product_update_byId = (req, res, next) => {
-  const id = req.params.productId;
-  /*
+  //check request picture
+  let target = null;
+  req.body.forEach(function (arrayItem) {
+    Object.keys(arrayItem).forEach((key) => {
+      if (arrayItem[key] === "Picture") {
+        let newPicture = "";
+        newPicture = arrayItem.value;
+        let dot = newPicture.indexOf(".");
+        newPicture = newPicture.substring(8, dot);
+
+        let directory_name =
+          "C:/Users/juhi0/OneDrive/Dokumentumok/Node js/node-express-mongoDb-jwt/uploads";
+        let filenames = fs.readdirSync(directory_name);
+
+        target = filenames.filter((file) => {
+          return file.indexOf(newPicture) >= 0 ? true : false;
+        });
+      }
+    });
+  });
+
+  if (target.length === 0) {
+    res.status(404).json({
+      message: "there is not a picture with this file name!",
+    });
+  } else {
+    const id = req.params.productId;
+    /*
     így kell lekérni postman-ből:
     [{"propName" : "name", "value": "Mikrohullámú Sütő"}
   ]
     */
-  const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
+    const updateOps = {};
+    for (const ops of req.body) {
+      updateOps[ops.propName] = ops.value;
+    }
+    Product.updateOne({ _id: id }, { $set: updateOps })
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: "Product updated",
+          request: {
+            type: "PATCH",
+            url: "http://localhost:8081/products/" + id,
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
+      });
   }
-  Product.updateOne({ _id: id }, { $set: updateOps })
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: "Product updated",
-        request: {
-          type: "PATCH",
-          url: "http://localhost:8081/products/" + id,
-        },
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        Error: err,
-      });
-    });
 };
 
 exports.product_delete_byId = (req, res, next) => {
