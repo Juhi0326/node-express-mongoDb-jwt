@@ -93,6 +93,8 @@ exports.homePage_create = (req, res, next) => {
 };
 
 exports.homePage_update = (req, res, next) => {
+
+  //check request picture
   let target = false;
   let yourArray = req.body;
   yourArray.forEach(function (arrayItem) {
@@ -106,16 +108,26 @@ exports.homePage_update = (req, res, next) => {
         let directory_name =
           "C:/Users/juhi0/OneDrive/Dokumentumok/Node js/node-express-mongoDb-jwt/uploads";
         let filenames = fs.readdirSync(directory_name);
-        filenames.forEach((file) => {
+
+        //így is lehetne, de a filter jobb megoldás
+/*         filenames.forEach((file) => {
           let dot = file.indexOf(".");
           let pic = file.substring(0, dot);
           pic == newPicture ? (target = true) : newPicture = newPicture;
+        }); */
+
+        target = filenames.filter((file) => {
+          if (file.indexOf(newPicture) >= 0) {
+            return true;
+          } else {
+            return false;
+          }
         });
       }
     });
   });
 
-  if (target === false) {
+  if (target.length === 0) {
     res.status(404).json({
       message: "there is not a picture with this file name!",
     });
