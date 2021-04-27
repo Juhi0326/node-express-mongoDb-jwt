@@ -93,7 +93,6 @@ exports.homePage_create = (req, res, next) => {
 };
 
 exports.homePage_update = (req, res, next) => {
-
   //check request picture
   let target = false;
   let yourArray = req.body;
@@ -110,7 +109,7 @@ exports.homePage_update = (req, res, next) => {
         let filenames = fs.readdirSync(directory_name);
 
         //így is lehetne, de a filter jobb megoldás
-/*         filenames.forEach((file) => {
+        /*         filenames.forEach((file) => {
           let dot = file.indexOf(".");
           let pic = file.substring(0, dot);
           pic == newPicture ? (target = true) : newPicture = newPicture;
@@ -123,7 +122,7 @@ exports.homePage_update = (req, res, next) => {
           // } else {
           //   return false;
           // }
-         return file.indexOf(newPicture) >= 0 ? true : false;
+          return file.indexOf(newPicture) >= 0 ? true : false;
         });
       }
     });
