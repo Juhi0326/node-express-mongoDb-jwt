@@ -117,11 +117,13 @@ exports.homePage_update = (req, res, next) => {
         }); */
 
         target = filenames.filter((file) => {
-          if (file.indexOf(newPicture) >= 0) {
-            return true;
-          } else {
-            return false;
-          }
+          // így lehetne if -el:
+          // if (file.indexOf(newPicture) >= 0) {
+          //   return true;
+          // } else {
+          //   return false;
+          // }
+         return file.indexOf(newPicture) >= 0 ? true : false;
         });
       }
     });
