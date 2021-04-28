@@ -1,6 +1,7 @@
 const HomePage = require("../models/homePage");
 const mongoose = require("mongoose");
 const fs = require("fs");
+const PATH = require("path");
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
@@ -177,6 +178,7 @@ exports.homePage_update = (req, res, next) => {
 };
 
 exports.homePage_delete = (req, res, next) => {
+  const pathFile = PATH.resolve("");
   HomePage.find()
     .exec()
     .then((docs) => {
@@ -185,6 +187,13 @@ exports.homePage_delete = (req, res, next) => {
           message: "Nincs még home page, így nem is lehet törölni.",
         });
       } else {
+        fs.unlink(pathFile + "\\" + docs[0].Picture, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("sikerült!");
+          }
+        });
         const id = docs[0]._id;
         HomePage.deleteOne({ _id: id })
           .exec()

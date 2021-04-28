@@ -8,7 +8,7 @@ const homePageSchema = mongoose.Schema({
     Section_2: {type: String},
     Section_3: {type: String},
     Section_4: {type: String},
-    Picture: {type: String}
+    Picture: {type: String, ref: 'Image'}
 });
 
 module.exports = mongoose.model('HomePage', homePageSchema);
