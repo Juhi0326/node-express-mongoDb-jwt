@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const mongoose = require("mongoose");
 const fs = require("fs");
+const PATH = require("path");
 
 exports.product_get_all = (req, res, next) => {
   Product.find()
@@ -150,6 +151,7 @@ exports.product_update_byId = (req, res, next) => {
 
 exports.product_delete_byId = (req, res, next) => {
   const id = req.params.productId;
+  const pathFile = PATH.resolve("");
   Product.findById(id)
     .exec()
     .then((product) => {
@@ -158,6 +160,13 @@ exports.product_delete_byId = (req, res, next) => {
           messages: "there is not a product with this id!",
         });
       } else {
+        fs.unlink(pathFile + "\\" + product.productImage, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("sikerült!");
+          }
+        });
         Product.deleteOne({ _id: id })
           .exec()
           .then((result) => {
