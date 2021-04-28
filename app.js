@@ -5,6 +5,7 @@ const orderRoutes = require("./routes/orders");
 const userRoutes = require('./routes/users');
 const homeRoute= require('./routes/home');
 const homeSetup = require('./routes/homeSetup');
+const imageSetupRoutes = require('./routes/image');
 const mongoose = require('mongoose');
 const morgan = require("morgan");
 require('dotenv').config();
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
 
 app.use("/home", homeRoute);
 app.use("/home-setup", homeSetup);
+app.use('/image-setup', imageSetupRoutes);
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 app.use('/users', userRoutes);
