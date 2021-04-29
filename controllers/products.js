@@ -102,7 +102,7 @@ exports.product_get_one_ById = (req, res, next) => {
 };
 
 exports.product_update_byId = (req, res, next) => {
-  //check request image
+ 
   const id = req.params.productId;
   /*
     így kell lekérni postman-ből:
@@ -117,15 +117,14 @@ exports.product_update_byId = (req, res, next) => {
     }
     updateOps[ops.propName] = ops.value;
   }
-  console.log(imageId);
 
+ //check request image
   Image.findById(imageId).then((image) => {
     if (!image) {
       return res.status(404).json({
         message: "Image not found",
       });
     } else {
-      console.log(updateOps);
       Product.updateOne({ _id: id }, { $set: updateOps })
         .exec()
         .then((result) => {
