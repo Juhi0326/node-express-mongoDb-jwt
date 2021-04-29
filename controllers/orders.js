@@ -135,23 +135,23 @@ exports.order_delete_ById = (req, res, next) => {
           messages: "there is not an order with this id!",
         });
       } else {
-     
         Order.deleteOne({ _id: id })
-        .exec()
-        .then((order) => {
-          res.status(200).json({
-            message: "Order deleted successfully!",
-            request: {
-              type: "DELETE",
-              url: "http://localhost:8081/orders",
-              id: id,
-            },
+          .exec()
+          .then((order) => {
+            res.status(200).json({
+              message: "Order deleted successfully!",
+              request: {
+                type: "DELETE",
+                url: "http://localhost:8081/orders",
+                id: id,
+              },
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              Error: err,
+            });
           });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            Error: err,
-          });
-        });}
+      }
     });
 };

@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 require("dotenv").config({ path: "../.env" });
 const jwt = require("jsonwebtoken");
-const User = require('../models/user');
-
+const User = require("../models/user");
 
 exports.user_signUp = (req, res, next) => {
   User.find({ email: req.body.email })
@@ -24,7 +23,7 @@ exports.user_signUp = (req, res, next) => {
               _id: new mongoose.Types.ObjectId(),
               email: req.body.email,
               password: hash,
-              role: req.body.role
+              role: req.body.role,
             });
             user
               .save()
@@ -61,12 +60,12 @@ exports.user_login = (req, res, next) => {
           });
         }
         if (result) {
-          console.log(user[0].role)
+          console.log(user[0].role);
           const token = jwt.sign(
             {
               email: user[0].email,
               userId: user[0]._id,
-              role: user[0].role
+              role: user[0].role,
             },
             process.env.secret_JWT_KEY,
             { expiresIn: "1h" }
@@ -75,7 +74,7 @@ exports.user_login = (req, res, next) => {
           return res.status(200).json({
             message: "Auth successful",
             token,
-            role: user[0].role
+            role: user[0].role,
           });
         }
         res.status(404).json({

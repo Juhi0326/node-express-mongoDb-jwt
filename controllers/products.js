@@ -100,7 +100,6 @@ exports.product_get_one_ById = (req, res, next) => {
 };
 
 exports.product_update_byId = (req, res, next) => {
- 
   const id = req.params.productId;
   /*
     így kell lekérni postman-ből:
@@ -116,7 +115,7 @@ exports.product_update_byId = (req, res, next) => {
     updateOps[ops.propName] = ops.value;
   }
 
- //check request image
+  //check request image
   Image.findById(imageId).then((image) => {
     if (!image) {
       return res.status(404).json({

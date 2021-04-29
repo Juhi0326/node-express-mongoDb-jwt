@@ -165,24 +165,24 @@ exports.homePage_delete = (req, res, next) => {
         return res.status(404).json({
           message: "Nincs még home page, így nem is lehet törölni.",
         });
-      } 
-        const id = docs[0]._id;
-        HomePage.deleteOne({ _id: id })
-          .exec()
-          .then((result) => {
-            res.status(200).json({
-              message: "Home Page deleted successfully!",
-              request: {
-                type: "DELETE",
-                id: id,
-              },
-            });
-          })
-          .catch((err) => {
-            res.status(500).json({
-              Error: err,
-            });
+      }
+      const id = docs[0]._id;
+      HomePage.deleteOne({ _id: id })
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: "Home Page deleted successfully!",
+            request: {
+              type: "DELETE",
+              id: id,
+            },
           });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            Error: err,
+          });
+        });
     })
     .catch((err) => {
       return res.status(500).json({
