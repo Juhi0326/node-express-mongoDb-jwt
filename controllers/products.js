@@ -1,11 +1,12 @@
 const Product = require("../models/product");
 const mongoose = require("mongoose");
+const Image = require("../models/image");
 const fs = require("fs");
 const PATH = require("path");
 
 exports.product_get_all = (req, res, next) => {
   Product.find()
-    .select("-_v")
+    .select("-__v")
     .exec()
     .then((docs) => {
       const response = {
@@ -14,7 +15,7 @@ exports.product_get_all = (req, res, next) => {
           return {
             name: doc.name,
             price: doc.price,
-            productImage: doc.productImage,
+            productImage: doc.image,
             _id: doc._id,
             request: {
               type: "GET",
@@ -33,15 +34,21 @@ exports.product_get_all = (req, res, next) => {
 };
 
 exports.product_create = (req, res, next) => {
-  console.log(req.file);
-  const product = new Product({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    price: req.body.price,
-    productImage: req.file.path,
-  });
-  product
-    .save()
+  Image.findById(req.body.imageId)
+    .then((image) => {
+      if (!image) {
+        return res.status(404).json({
+          message: "Image not found",
+        });
+      }
+      const product = new Product({
+        _id: new mongoose.Types.ObjectId(),
+        name: req.body.name,
+        price: req.body.price,
+        imageId: image,
+      });
+      return product.save();
+    })
     .then((result) => {
       console.log(result);
       res.status(201).json({
@@ -49,6 +56,7 @@ exports.product_create = (req, res, next) => {
         createdProduct: {
           name: result.name,
           price: result.price,
+          image: result.image,
           id: result._id,
           request: {
             type: "GET",
@@ -94,59 +102,48 @@ exports.product_get_one_ById = (req, res, next) => {
 };
 
 exports.product_update_byId = (req, res, next) => {
-  //check request picture
-  let target = null;
-  req.body.forEach(function (arrayItem) {
-    Object.keys(arrayItem).forEach((key) => {
-      if (arrayItem[key] === "Picture") {
-        let newPicture = "";
-        newPicture = arrayItem.value;
-        let dot = newPicture.indexOf(".");
-        newPicture = newPicture.substring(8, dot);
-
-        let directory_name =
-          "C:/Users/juhi0/OneDrive/Dokumentumok/Node js/node-express-mongoDb-jwt/uploads";
-        let filenames = fs.readdirSync(directory_name);
-
-        target = filenames.filter((file) => {
-          return file.indexOf(newPicture) >= 0 ? true : false;
-        });
-      }
-    });
-  });
-
-  if (target.length === 0) {
-    res.status(404).json({
-      message: "there is not a picture with this file name!",
-    });
-  } else {
-    const id = req.params.productId;
-    /*
+  //check request image
+  const id = req.params.productId;
+  /*
     így kell lekérni postman-ből:
     [{"propName" : "name", "value": "Mikrohullámú Sütő"}
   ]
     */
-    const updateOps = {};
-    for (const ops of req.body) {
-      updateOps[ops.propName] = ops.value;
+  let imageId = "";
+  const updateOps = {};
+  for (const ops of req.body) {
+    if (ops.propName === "imageId") {
+      imageId = ops.value;
     }
-    Product.updateOne({ _id: id }, { $set: updateOps })
-      .exec()
-      .then((result) => {
-        res.status(200).json({
-          message: "Product updated",
-          request: {
-            type: "PATCH",
-            url: "http://localhost:8081/products/" + id,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          Error: err,
-        });
-      });
+    updateOps[ops.propName] = ops.value;
   }
+  console.log(imageId);
+
+  Image.findById(imageId).then((image) => {
+    if (!image) {
+      return res.status(404).json({
+        message: "Image not found",
+      });
+    } else {
+      console.log(updateOps);
+      Product.updateOne({ _id: id }, { $set: updateOps })
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: "Product updated",
+            request: {
+              type: "PATCH",
+              url: "http://localhost:8081/products/" + id,
+            },
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            Error: err,
+          });
+        });
+    }
+  });
 };
 
 exports.product_delete_byId = (req, res, next) => {
