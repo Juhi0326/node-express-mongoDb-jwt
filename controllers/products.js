@@ -43,7 +43,7 @@ exports.product_create = (req, res, next) => {
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
-        imageId: image,
+        imageId: req.body.imageId,
       });
       return product.save();
     })
@@ -54,7 +54,7 @@ exports.product_create = (req, res, next) => {
         createdProduct: {
           name: result.name,
           price: result.price,
-          image: result.image,
+          imageId: result.imageId,
           id: result._id,
           request: {
             type: "GET",
