@@ -13,6 +13,7 @@ exports.product_get_all = (req, res, next) => {
           return {
             name: doc.name,
             price: doc.price,
+            description: doc.description,
             productImage: doc.image,
             _id: doc._id,
             request: {
@@ -43,6 +44,7 @@ exports.product_create = (req, res, next) => {
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
+        description: req.body.description,
         imageId: req.body.imageId,
       });
       return product.save();
@@ -54,6 +56,7 @@ exports.product_create = (req, res, next) => {
         createdProduct: {
           name: result.name,
           price: result.price,
+          description: result.description,
           imageId: result.imageId,
           id: result._id,
           request: {
@@ -121,7 +124,14 @@ exports.product_update_byId = (req, res, next) => {
       return res.status(404).json({
         message: "Image not found",
       });
-    } else {
+    } 
+    Product.findById(id).then((product) => {
+      if (!product) {
+        return res.status(404).json({
+          message: 'there is not a product with this id!'
+        })
+      }
+    })
       Product.updateOne({ _id: id }, { $set: updateOps })
         .exec()
         .then((result) => {
@@ -138,7 +148,7 @@ exports.product_update_byId = (req, res, next) => {
             Error: err,
           });
         });
-    }
+    
   });
 };
 
