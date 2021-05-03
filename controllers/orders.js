@@ -111,12 +111,43 @@ exports.order_update_ById = (req, res, next) => {
     }
   
     //check product
-    Product.findById(productId).then((product) => {
-      if (!product) {
-        return res.status(404).json({
-          message: 'product not found',
+    if (productId !== '') {
+      Product.findById(productId).then((product) => {
+        if (!product) {
+          return res.status(404).json({
+            message: 'product not found',
+          });
+        } 
+        Order.findById(id).then((order) => {
+          if (!order) {
+            return res.status(404).json({
+              message: 'there is not an order with this id!'
+            })
+          }
+        })
+          Order.updateOne({ _id: id }, { $set: updateOps })
+            .exec()
+            .then((result) => {
+              res.status(200).json({
+                message: 'order updated',
+                request: {
+                  type: 'PATCH',
+                  url: 'http://localhost:8081/orders/' + id,
+                },
+              });
+            })
+            .catch((err) => {
+              res.status(500).json({
+                Error: err,
+              });
+            });
+        
+      }).catch((err) => {
+        res.status(500).json({
+          Error: err,
         });
-      } 
+      });
+    } else {
       Order.findById(id).then((order) => {
         if (!order) {
           return res.status(404).json({
@@ -140,12 +171,8 @@ exports.order_update_ById = (req, res, next) => {
               Error: err,
             });
           });
-      
-    }).catch((err) => {
-      res.status(500).json({
-        Error: err,
-      });
-    });
+    }
+
 };
 
 exports.order_delete_ById = (req, res, next) => {
