@@ -176,5 +176,10 @@ exports.order_delete_ById = (req, res, next) => {
             });
           });
       }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        Error: err,
+      });
     });
 };
