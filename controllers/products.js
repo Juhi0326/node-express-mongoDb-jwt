@@ -1,10 +1,10 @@
-const Product = require('../models/product');
-const mongoose = require('mongoose');
-const Image = require('../models/image');
+const Product = require("../models/product");
+const mongoose = require("mongoose");
+const Image = require("../models/image");
 
 exports.product_get_all = (req, res, next) => {
   Product.find()
-    .select('-__v')
+    .select("-__v")
     .exec()
     .then((docs) => {
       const response = {
@@ -17,8 +17,8 @@ exports.product_get_all = (req, res, next) => {
             productImage: doc.image,
             _id: doc._id,
             request: {
-              type: 'GET',
-              url: 'http://localhost:8081/products/' + doc._id,
+              type: "GET",
+              url: "http://localhost:8081/products/" + doc._id,
             },
           };
         }),
@@ -37,7 +37,7 @@ exports.product_create = (req, res, next) => {
     .then((image) => {
       if (!image) {
         return res.status(404).json({
-          message: 'Image not found',
+          message: "Image not found",
         });
       }
       const product = new Product({
@@ -52,7 +52,7 @@ exports.product_create = (req, res, next) => {
     .then((result) => {
       console.log(result);
       res.status(201).json({
-        message: 'Created new product successfully!',
+        message: "Created new product successfully!",
         createdProduct: {
           name: result.name,
           price: result.price,
@@ -60,8 +60,8 @@ exports.product_create = (req, res, next) => {
           imageId: result.imageId,
           id: result._id,
           request: {
-            type: 'GET',
-            url: 'http://localhost:8081/products/' + result._id,
+            type: "GET",
+            url: "http://localhost:8081/products/" + result._id,
           },
         },
       });
@@ -77,7 +77,7 @@ exports.product_create = (req, res, next) => {
 exports.product_get_one_ById = (req, res, next) => {
   const id = req.params.productId;
   Product.findById(id)
-    .select('-__v')
+    .select("-__v")
     .exec()
     .then((doc) => {
       if (doc) {
@@ -85,13 +85,13 @@ exports.product_get_one_ById = (req, res, next) => {
         res.status(200).json({
           product: doc,
           request: {
-            type: 'GET',
-            url: 'http://localhost:8081/products',
+            type: "GET",
+            url: "http://localhost:8081/products",
           },
         });
       } else {
         res.status(404).json({
-          message: 'There is not a product with this id!',
+          message: "There is not a product with this id!",
         });
       }
     })
@@ -109,51 +109,77 @@ exports.product_update_byId = (req, res, next) => {
     [{'propName' : 'name', 'value': 'Mikrohullámú Sütő'}
   ]
     */
-  let imageId = '';
+  let imageId = "";
   const updateOps = {};
   for (const ops of req.body) {
-    if (ops.propName === 'imageId') {
+    if (ops.propName === "imageId") {
       imageId = ops.value;
     }
     updateOps[ops.propName] = ops.value;
   }
-
   //check request image
-  Image.findById(imageId).then((image) => {
-    if (!image) {
-      return res.status(404).json({
-        message: 'Image not found',
+  if (imageId !== "") {
+    Image.findById(imageId)
+      .then((image) => {
+        if (!image) {
+          return res.status(404).json({
+            message: "Image not found",
+          });
+        }
+        Product.findById(id).then((product) => {
+          if (!product) {
+            return res.status(404).json({
+              message: "there is not a product with this id!",
+            });
+          }
+        });
+        Product.updateOne({ _id: id }, { $set: updateOps })
+          .exec()
+          .then((result) => {
+            res.status(200).json({
+              message: "Product updated",
+              request: {
+                type: "PATCH",
+                url: "http://localhost:8081/products/" + id,
+              },
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              Error: err,
+            });
+          });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
       });
-    } 
+  } else {
     Product.findById(id).then((product) => {
       if (!product) {
         return res.status(404).json({
-          message: 'there is not a product with this id!'
-        })
-      }
-    })
-      Product.updateOne({ _id: id }, { $set: updateOps })
-        .exec()
-        .then((result) => {
-          res.status(200).json({
-            message: 'Product updated',
-            request: {
-              type: 'PATCH',
-              url: 'http://localhost:8081/products/' + id,
-            },
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            Error: err,
-          });
+          message: "there is not a product with this id!",
         });
-    
-  }).catch((err) => {
-    res.status(500).json({
-      Error: err,
+      }
     });
-  });
+    Product.updateOne({ _id: id }, { $set: updateOps })
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: "Product updated",
+          request: {
+            type: "PATCH",
+            url: "http://localhost:8081/products/" + id,
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
+      });
+  }
 };
 
 exports.product_delete_byId = (req, res, next) => {
@@ -163,17 +189,17 @@ exports.product_delete_byId = (req, res, next) => {
     .then((product) => {
       if (!product) {
         return res.status(404).json({
-          messages: 'there is not a product with this id!',
+          messages: "there is not a product with this id!",
         });
       } else {
         Product.deleteOne({ _id: id })
           .exec()
           .then((result) => {
             res.status(200).json({
-              message: 'product deleted successfully!',
+              message: "product deleted successfully!",
               request: {
-                type: 'DELETE',
-                url: 'http://localhost:8081/products',
+                type: "DELETE",
+                url: "http://localhost:8081/products",
                 body: { name: product.name, price: product.price },
                 id: id,
               },
