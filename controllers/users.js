@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-require("dotenv").config({ path: "../.env" });
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+require('dotenv').config({ path: '../.env' });
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 exports.user_signUp = (req, res, next) => {
   User.find({ email: req.body.email })
@@ -10,7 +10,7 @@ exports.user_signUp = (req, res, next) => {
     .then((user) => {
       if (user.length >= 1) {
         return res.status(409).json({
-          message: "Email is already exist!",
+          message: 'Email is already exist!',
         });
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
@@ -29,7 +29,7 @@ exports.user_signUp = (req, res, next) => {
               .save()
               .then((result) => {
                 res.status(201).json({
-                  message: "user created!",
+                  message: 'user created!',
                 });
               })
               .catch((err) => {
@@ -50,13 +50,13 @@ exports.user_login = (req, res, next) => {
     .then((user) => {
       if (user < 1) {
         return res.status(404).json({
-          messages: "Auth failed!",
+          messages: 'Auth failed!',
         });
       }
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (err) {
           return res.status(404).json({
-            messages: "Auth failed!",
+            messages: 'Auth failed!',
           });
         }
         if (result) {
@@ -68,17 +68,17 @@ exports.user_login = (req, res, next) => {
               role: user[0].role,
             },
             process.env.secret_JWT_KEY,
-            { expiresIn: "24h" }
+            { expiresIn: '24h' }
           );
 
           return res.status(200).json({
-            message: "Auth successful",
+            message: 'Auth successful',
             token,
             role: user[0].role,
           });
         }
         res.status(404).json({
-          messages: "Auth failed!",
+          messages: 'Auth failed!',
         });
       });
     })
@@ -95,7 +95,7 @@ exports.user_delete = (req, res, next) => {
     .exec()
     .then((result) => {
       res.status(201).json({
-        message: "User is deleted.",
+        message: 'User is deleted.',
       });
     })
     .catch((err) => {

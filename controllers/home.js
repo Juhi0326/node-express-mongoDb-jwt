@@ -1,9 +1,9 @@
-const HomePage = require("../models/homePage");
-const mongoose = require("mongoose");
+const HomePage = require('../models/homePage');
+const mongoose = require('mongoose');
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
-    .select("-_v")
+    .select('-_v')
     .exec()
     .then((docs) => {
       console.log(docs[0]);
@@ -21,7 +21,7 @@ exports.homePage_get_all = (req, res, next) => {
             imageId: doc.imageId,
             _id: doc._id,
             request: {
-              type: "GET",
+              type: 'GET',
             },
           };
         }),

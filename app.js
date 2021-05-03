@@ -1,13 +1,13 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const productRoutes = require("./routes/productRoutes");
-const orderRoutes = require("./routes/orders");
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orders');
 const userRoutes = require('./routes/users');
 const homeRoute= require('./routes/home');
 const homeSetup = require('./routes/homeSetup');
 const imageSetupRoutes = require('./routes/image');
 const mongoose = require('mongoose');
-const morgan = require("morgan");
+const morgan = require('morgan');
 require('dotenv').config();
 
 
@@ -20,7 +20,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
 }).catch((err) => console.log(err));
 
 
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
 
 app.use(express.urlencoded({ extended: false }));
@@ -38,15 +38,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/home", homeRoute);
-app.use("/home-setup", homeSetup);
+app.use('/home', homeRoute);
+app.use('/home-setup', homeSetup);
 app.use('/image-setup', imageSetupRoutes);
-app.use("/products", productRoutes);
-app.use("/orders", orderRoutes);
+app.use('/products', productRoutes);
+app.use('/orders', orderRoutes);
 app.use('/users', userRoutes);
 
 app.use((req, res, next) => {
-  const error = new Error("page not found");
+  const error = new Error('page not found');
   error.status = 404;
   next(error);
 });

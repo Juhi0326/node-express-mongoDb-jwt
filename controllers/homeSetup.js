@@ -1,12 +1,12 @@
-const HomePage = require("../models/homePage");
-const mongoose = require("mongoose");
-const Image = require("../models/image");
-const fs = require("fs");
-const PATH = require("path");
+const HomePage = require('../models/homePage');
+const mongoose = require('mongoose');
+const Image = require('../models/image');
+const fs = require('fs');
+const PATH = require('path');
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
-    .select("-_v")
+    .select('-_v')
     .exec()
     .then((docs) => {
       console.log(docs[0]);
@@ -24,7 +24,7 @@ exports.homePage_get_all = (req, res, next) => {
             Section_4: doc.Section_4,
             _id: doc._id,
             request: {
-              type: "GET",
+              type: 'GET',
             },
           };
         }),
@@ -45,13 +45,13 @@ exports.homePage_create = (req, res, next) => {
       if (docs.length > 0) {
         res.status(404).json({
           message:
-            "csak egy home page lehetséges, ha már van egy, akkor csak módosítani lehet.",
+            'csak egy home page lehetséges, ha már van egy, akkor csak módosítani lehet.',
         });
       } else {
         Image.findById(req.body.imageId).then((image) => {
           if (!image && req.body.imageId) {
             return res.status(404).json({
-              message: "Image not found",
+              message: 'Image not found',
             });
           }
         });
@@ -72,7 +72,7 @@ exports.homePage_create = (req, res, next) => {
           .then((result) => {
             console.log(result);
             res.status(201).json({
-              message: "Created new HomePage successfully!",
+              message: 'Created new HomePage successfully!',
               createdHomePageData: {
                 Title: result.Title,
                 Heading: result.Heading,
@@ -84,8 +84,8 @@ exports.homePage_create = (req, res, next) => {
                 id: result._id,
                 imageId: result.imageId,
                 request: {
-                  type: "GET",
-                  url: "http://localhost:8081/home",
+                  type: 'GET',
+                  url: 'http://localhost:8081/home',
                 },
               },
             });
@@ -106,30 +106,30 @@ exports.homePage_update = (req, res, next) => {
     .then((docs) => {
       if (docs.length < 0) {
         return res.status(404).json({
-          message: "Nincs még home page, hozz létre egyet.",
+          message: 'Nincs még home page, hozz létre egyet.',
         });
       }
       const id = docs[0]._id;
       /*
           így kell lekérni postman-ből:
-          [{"propName" : "name", "value": "Mikrohullámú Sütő"}
+          [{'propName' : 'name', 'value': 'Mikrohullámú Sütő'}
         ]
           */
-      let imageId = "";
+      let imageId = '';
       const updateOps = {};
       console.log(req.body);
       for (const ops of req.body) {
-        if (ops.propName === "imageId") {
+        if (ops.propName === 'imageId') {
           imageId = ops.value;
         }
         updateOps[ops.propName] = ops.value;
       }
       //check request image
-      if (imageId !== "") {
+      if (imageId !== '') {
         Image.findById(imageId).then((image) => {
           if (!image) {
             return res.status(404).json({
-              message: "Image not found",
+              message: 'Image not found',
             });
           }
         });
@@ -138,9 +138,9 @@ exports.homePage_update = (req, res, next) => {
         .exec()
         .then((result) => {
           res.status(200).json({
-            message: "Home Page updated",
+            message: 'Home Page updated',
             request: {
-              type: "PATCH",
+              type: 'PATCH',
             },
           });
         })
@@ -163,7 +163,7 @@ exports.homePage_delete = (req, res, next) => {
     .then((docs) => {
       if (docs.length < 0) {
         return res.status(404).json({
-          message: "Nincs még home page, így nem is lehet törölni.",
+          message: 'Nincs még home page, így nem is lehet törölni.',
         });
       }
       const id = docs[0]._id;
@@ -171,9 +171,9 @@ exports.homePage_delete = (req, res, next) => {
         .exec()
         .then((result) => {
           res.status(200).json({
-            message: "Home Page deleted successfully!",
+            message: 'Home Page deleted successfully!',
             request: {
-              type: "DELETE",
+              type: 'DELETE',
               id: id,
             },
           });
