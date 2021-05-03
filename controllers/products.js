@@ -149,6 +149,10 @@ exports.product_update_byId = (req, res, next) => {
           });
         });
     
+  }).catch((err) => {
+    res.status(500).json({
+      Error: err,
+    });
   });
 };
 
