@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const PATH = require("path");
 const Product = require("../models/product");
+const HomePage = require("../models/homePage");
 
 exports.images_get_all = (req, res, next) => {
   Image.find()
@@ -92,6 +93,7 @@ exports.image_get_one_ById = (req, res, next) => {
 
 exports.image_delete_byId = (req, res, next) => {
   let productArray = [];
+  let homePageArray = [];
   const id = req.params.imageId;
   const pathFile = PATH.resolve("");
 
@@ -108,19 +110,48 @@ exports.image_delete_byId = (req, res, next) => {
   } catch (error) {
     console.log(error);
   }
+
+  try {
+    HomePage.find()
+      .exec()
+      .then((homePages) => {
+        homePages.forEach((homePage) => {
+          if (homePage.imageId == id) {
+            homePageArray.push(homePage);
+          }
+        });
+      });
+  } catch (error) {
+    console.log(error);
+  }
+
   Image.findById(id)
     .exec()
     .then((image) => {
+      console.log(homePageArray);
+      console.log(productArray);
       if (!image) {
         return res.status(404).json({
           messages: "there is not an image with this id!",
         });
       }
-      if (productArray.length > 0) {
+      if (productArray.length > 0 && !homePageArray.length) {
         return res.status(404).json({
-          message:
-            "van ilyen kép termékhez társítva, ha törölni szeretnéd a képet, akkor előszőr a terméket kell törölni.",
+          message: `van ilyen kép termékhez társítva, ha törölni szeretnéd a képet, 
+            akkor előszőr a terméket kell törölni.`,
           termék: productArray,
+        });
+      } else if (homePageArray.length > 0 && productArray.length <= 0) {
+        return res.status(404).json({
+          message: `van ilyen kép a home Page-hez társítva, ha törölni szeretnéd a képet, 
+            akkor előszőr a home page-et kell törölni, vagy cserélni a képet.`,
+          homePage: homePageArray,
+        });
+      } else if (homePageArray.length > 0 && productArray.length > 0) {
+        return res.status(404).json({
+          message: `van ilyen kép a home page-en is, és a product-nál is.`,
+          termék: productArray,
+          homePage: homePageArray,
         });
       } else {
         fs.unlink(pathFile + "\\" + image.imageName, (err) => {
