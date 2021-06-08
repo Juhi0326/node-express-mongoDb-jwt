@@ -19,6 +19,7 @@ exports.homePage_get_all = (req, res, next) => {
             Section_3: doc.Section_3,
             Section_4: doc.Section_4,
             imageId: doc.imageId,
+            imageName: doc.imageName,
             _id: doc._id,
             request: {
               type: 'GET',
