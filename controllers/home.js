@@ -1,6 +1,8 @@
 const HomePage = require('../models/homePage');
 const mongoose = require('mongoose');
 
+//a képet így lehet elérni: http://localhost:8081/uploads/1620145209368sky.jpg
+
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
     .select('-_v')
