@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Image = require('../models/image');
 const fs = require('fs');
 const PATH = require('path');
+const image = require('../models/image');
 
 exports.homePage_get_all = (req, res, next) => {
   HomePage.find()
@@ -39,6 +40,7 @@ exports.homePage_get_all = (req, res, next) => {
 };
 
 exports.homePage_create = (req, res, next) => {
+
   HomePage.find()
     .exec()
     .then((docs) => {
@@ -54,48 +56,52 @@ exports.homePage_create = (req, res, next) => {
               message: 'Image not found',
             });
           }
-        });
-        console.log(req.body);
-        const homePage = new HomePage({
-          _id: new mongoose.Types.ObjectId(),
-          Title: req.body.Title,
-          Heading: req.body.Heading,
-          Introduction: req.body.Introduction,
-          Section_1: req.body.Section_1,
-          Section_2: req.body.Section_2,
-          Section_3: req.body.Section_3,
-          Section_4: req.body.Section_4,
-          imageId: req.body.imageId,
-        });
-        homePage
-          .save()
-          .then((result) => {
-            console.log(result);
-            res.status(201).json({
-              message: 'Created new HomePage successfully!',
-              createdHomePageData: {
-                Title: result.Title,
-                Heading: result.Heading,
-                Introduction: result.Introduction,
-                Section_1: result.Section_1,
-                Section_2: result.Section_2,
-                Section_3: result.Section_3,
-                Section_4: result.Section_4,
-                id: result._id,
-                imageId: result.imageId,
-                request: {
-                  type: 'GET',
-                  url: 'http://localhost:8081/home',
-                },
-              },
-            });
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).json({
-              error: err,
-            });
+          console.log(req.body);
+          const homePage = new HomePage({
+            _id: new mongoose.Types.ObjectId(),
+            Title: req.body.Title,
+            Heading: req.body.Heading,
+            Introduction: req.body.Introduction,
+            Section_1: req.body.Section_1,
+            Section_2: req.body.Section_2,
+            Section_3: req.body.Section_3,
+            Section_4: req.body.Section_4,
+            imageId: req.body.imageId,
+            imageName:image.imageName
           });
+          homePage
+            .save()
+            .then((result) => {
+              console.log(result);
+              res.status(201).json({
+                message: 'Created new HomePage successfully!',
+                createdHomePageData: {
+                  Title: result.Title,
+                  Heading: result.Heading,
+                  Introduction: result.Introduction,
+                  Section_1: result.Section_1,
+                  Section_2: result.Section_2,
+                  Section_3: result.Section_3,
+                  Section_4: result.Section_4,
+                  id: result._id,
+                  imageId: result.imageId,
+                  imageName: image.imageName,
+                  request: {
+                    type: 'GET',
+                    url: 'http://localhost:8081/home',
+                  },
+                },
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(500).json({
+                error: err,
+              });
+            });
+
+        });
+
       }
     });
 };
