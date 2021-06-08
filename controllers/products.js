@@ -46,6 +46,7 @@ exports.product_create = (req, res, next) => {
         price: req.body.price,
         description: req.body.description,
         imageId: req.body.imageId,
+        imageName: image.imageName
       });
       return product.save();
     })
@@ -58,6 +59,7 @@ exports.product_create = (req, res, next) => {
           price: result.price,
           description: result.description,
           imageId: result.imageId,
+          imageName: result.imageName,
           id: result._id,
           request: {
             type: 'GET',
@@ -133,7 +135,9 @@ exports.product_update_byId = (req, res, next) => {
             });
           }
         });
-        Product.updateOne({ _id: id }, { $set: updateOps })
+        const imgPath =  {imageName: image.imageName}
+        const mergedOps = {...updateOps,...imgPath}
+        Product.updateOne({ _id: id }, { $set: mergedOps })
           .exec()
           .then((result) => {
             res.status(200).json({
