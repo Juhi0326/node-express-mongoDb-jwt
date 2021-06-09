@@ -19,7 +19,7 @@ exports.homePage_get_all = (req, res, next) => {
             Heading: doc.Heading,
             Introduction: doc.Introduction,
             imageId: doc.imageId,
-            imageName: doc.imageName,
+            imagePath: doc.imagePath,
             Section_1: doc.Section_1,
             Section_2: doc.Section_2,
             Section_3: doc.Section_3,
@@ -67,7 +67,7 @@ exports.homePage_create = (req, res, next) => {
             Section_3: req.body.Section_3,
             Section_4: req.body.Section_4,
             imageId: req.body.imageId,
-            imageName: image.imageName,
+            imagePath: image.imagePath,
           });
           homePage
             .save()
@@ -85,7 +85,7 @@ exports.homePage_create = (req, res, next) => {
                   Section_4: result.Section_4,
                   id: result._id,
                   imageId: result.imageId,
-                  imageName: image.imageName,
+                  imagePath: image.imagePath,
                   request: {
                     type: "GET",
                     url: "http://localhost:8081/home",
@@ -136,8 +136,8 @@ exports.homePage_update = (req, res, next) => {
               message: "Image not found",
             });
           }
-          console.log(image.imageName);
-          const imgPath = { imageName: image.imageName };
+          console.log(image.imagePath);
+          const imgPath = { imagePath: image.imagePath };
           const mergedOps = { ...updateOps, ...imgPath };
           HomePage.updateOne({ _id: id }, { $set: mergedOps })
             .exec()

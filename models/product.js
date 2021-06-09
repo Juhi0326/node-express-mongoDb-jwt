@@ -9,7 +9,7 @@ const productSchema = mongoose.Schema({
     ref: 'Image',
     required: true,
   },
-  imageName: {type: String, required: true }
+  imagePath: {type: String, required: true }
 });
 
 module.exports = mongoose.model('Product', productSchema);

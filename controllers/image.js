@@ -15,7 +15,7 @@ exports.images_get_all = (req, res, next) => {
         images: docs.map((doc) => {
           return {
             name: doc.name,
-            imageName: doc.imageName,
+            imagePath: doc.imagePath,
             _id: doc._id,
             request: {
               type: "GET",
@@ -37,7 +37,7 @@ exports.image_create = (req, res, next) => {
   const image = new Image({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
-    imageName: req.file.path,
+    imagePath: req.file.path,
   });
   image
     .save()
@@ -46,7 +46,7 @@ exports.image_create = (req, res, next) => {
         message: "Created new image successfully!",
         createdImage: {
           name: result.name,
-          imageName: result.imageName,
+          imagePath: result.imagePath,
           id: result._id,
           request: {
             type: "GET",
@@ -154,7 +154,7 @@ exports.image_delete_byId = (req, res, next) => {
           homePage: homePageArray,
         });
       } else {
-        fs.unlink(pathFile + "\\" + image.imageName, (err) => {
+        fs.unlink(pathFile + "\\" + image.imagePath, (err) => {
           if (err) {
             console.log(err);
           } else {
@@ -169,7 +169,7 @@ exports.image_delete_byId = (req, res, next) => {
               request: {
                 type: "DELETE",
                 url: "http://localhost:8081/image-setup",
-                body: { name: image.name, imageName: image.imageName },
+                body: { name: image.name, imagePath: image.imagePath },
                 id: id,
               },
             });

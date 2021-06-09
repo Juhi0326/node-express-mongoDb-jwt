@@ -9,8 +9,8 @@ router.get('/', moderatorAuthMiddleware, imageSetupController.images_get_all);
 
 router.get('/:imageId', moderatorAuthMiddleware, imageSetupController.image_get_one_ById );
 
-router.post('/', moderatorAuthMiddleware, upload.single('imageName'), imageSetupController.image_create);
+router.post('/', moderatorAuthMiddleware, upload.single('imagePath'), imageSetupController.image_create);
 
-router.delete('/:imageId', moderatorAuthMiddleware, upload.single('imageName'),imageSetupController.image_delete_byId);
+router.delete('/:imageId', moderatorAuthMiddleware, upload.single('imagePath'),imageSetupController.image_delete_byId);
 
 module.exports = router;

@@ -9,7 +9,7 @@ const homePageSchema = mongoose.Schema({
   Section_3: { type: String },
   Section_4: { type: String },
   imageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Image' },
-  imageName: {type: String}
+  imagePath: {type: String}
 });
 
 module.exports = mongoose.model('HomePage', homePageSchema);
