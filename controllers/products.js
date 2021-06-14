@@ -15,6 +15,7 @@ exports.product_get_all = (req, res, next) => {
             price: doc.price,
             description: doc.description,
             productImage: doc.image,
+            imagePath: doc.imagePath,
             _id: doc._id,
             request: {
               type: 'GET',
