@@ -5,6 +5,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.user_signUp = (req, res, next) => {
+  if (req.body.password === '') {
+    return res.status(409).json({
+      message: 'missing password',
+    });
+  }
   User.find({ email: req.body.email })
     .exec()
     .then((user) => {
@@ -21,6 +26,7 @@ exports.user_signUp = (req, res, next) => {
           } else {
             const user = new User({
               _id: new mongoose.Types.ObjectId(),
+              userName: req.body.userName,
               email: req.body.email,
               password: hash,
               role: req.body.role,
