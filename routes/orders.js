@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const moderatorAuthMiddleware = require('../middleware/authModerator');
 const orderController = require('../controllers/orders');
+const userAuthMiddleware = require('../middleware/authUser');
 
 router.get('/', moderatorAuthMiddleware, orderController.order_get_all);
 
-router.post('/', moderatorAuthMiddleware, orderController.order_create);
+router.post('/', userAuthMiddleware, orderController.order_create);
 
 router.get('/:orderId', moderatorAuthMiddleware, orderController.order_get_ById );
 
