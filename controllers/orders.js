@@ -1,5 +1,6 @@
 const Order = require('../models/order');
 const Product = require('../models/product');
+const User = require('../models/user')
 const mongoose = require('mongoose');
 
 exports.order_get_all = (req, res, next) => {
@@ -30,8 +31,22 @@ exports.order_get_all = (req, res, next) => {
     });
 };
 
-exports.order_create = (req, res, next) => {
-  Product.findById(req.body.productId)
+exports.order_create = async (req, res, next) => {
+  try {
+    await User.findById(req.body.userId).then((user) => {
+      if (!user) {
+        return res.status(404).json({
+          message: 'user not found',
+        });
+      }
+    }).catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: 'user not found',
+        Error: err,
+      });
+    })
+    Product.findById(req.body.productId)
     .then((product) => {
       if (!product) {
         return res.status(404).json({
@@ -42,6 +57,7 @@ exports.order_create = (req, res, next) => {
         _id: mongoose.Types.ObjectId(),
         quantity: req.body.quantity,
         product: req.body.productId,
+        user: req.body.userId
       });
       return order.save();
     })
@@ -52,6 +68,7 @@ exports.order_create = (req, res, next) => {
           _id: result._id,
           product: result.product,
           quantity: result.quantity,
+          user: result.user
         },
         request: {
           type: 'POST',
@@ -62,10 +79,14 @@ exports.order_create = (req, res, next) => {
     .catch((err) => {
       console.log(err);
       res.status(500).json({
-        message: 'Product not found',
+        message: 'Product or user not found',
         Error: err,
       });
     });
+  } catch (error) {
+    console.log(error)
+  }
+
 };
 
 exports.order_get_ById = (req, res, next) => {

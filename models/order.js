@@ -6,6 +6,11 @@ const orderSchema = mongoose.Schema({
     ref: 'Product',
     required: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   quantity: { type: Number, default: 1 },
 });
 
