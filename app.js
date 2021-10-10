@@ -14,7 +14,7 @@ require('dotenv').config();
 // database connection
 const dbURI = `mongodb+srv://juhi:${process.env.dbPass}@cluster0.hnfsi.mongodb.net/express-API?retryWrites=true&w=majority`;
 
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true,  useFindAndModify: false, useCreateIndex:true })
   .then((result) => {
   console.log('db connected');
 }).catch((err) => console.log(err));
