@@ -122,7 +122,7 @@ const usePasswordHashToMakeToken = ({
   console.log(process.env.password_reset_secret_JWT_KEY)
   const secret = passwordHash + "-" + createdAt
   const token = jwt.sign({ userId }, secret, {
-    expiresIn: '3h' // 1 hour
+    expiresIn: '1h' // 1 hour
   })
   return token
 }
@@ -138,7 +138,7 @@ exports.sendPasswordResetEmail = async (req, res) => {
   const token = usePasswordHashToMakeToken(user)
 
   const url = emailModule.getPasswordResetURL(user, token)
-  const emailTemplate = emailModule.resetPasswordTemplate(user, url)
+  //const emailTemplate = emailModule.resetPasswordTemplate(user, url)
 
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -150,11 +150,14 @@ exports.sendPasswordResetEmail = async (req, res) => {
 
   let mailOptions = {
     from: 'NOREPLY',
-    to: 'juhi0326@gmail.com',
+    to: user.email,
     subject: 'password reset email',
-    html: `<p>hi ${user.userName || user.email}! </p>
-    <p> this is the link:</p>
+    html: `
+    <p>Hey ${user.userName || user.email},</p>
+    <p>We heard that you lost your password. Sorry about that!</p>
+    <p>But don’t worry! You can use the following link to reset your password:</p>
     <a href=${url}>${url}</a>
+    <p>If you don’t use this link within 1 hour, it will expire.</p>
     `
   }
   transporter.sendMail(mailOptions, function (err, data) {

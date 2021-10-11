@@ -1,18 +1,18 @@
 const nodemailer = require('../node_modules/nodemailer');
-require('dotenv').config({ path: '../.env' });
+//require('dotenv').config({ path: '../.env' });
 
-exports.transporter = nodemailer.createTransport({
+/* exports.transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL,
     pass: process.env.EMAIL_PASSWORD
   }
 })
-
+ */
 exports.getPasswordResetURL = (user, token) =>
   `http://localhost:8081/users/receive_new_password/${user._id}/${token}`
 
-exports.resetPasswordTemplate = (user, url) => {
+/* exports.resetPasswordTemplate = (user, url) => {
   const from = process.env.EMAIL
   const to = user.email
   const subject = "Password Reset Link"
@@ -26,4 +26,4 @@ exports.resetPasswordTemplate = (user, url) => {
   `
 
   return { from, to, subject, html }
-}
+} */
