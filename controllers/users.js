@@ -13,6 +13,18 @@ exports.user_signUp = (req, res, next) => {
       message: 'missing password',
     });
   }
+  /*Min character = 6
+  Max character = 10
+  Min 1 lowercase character
+  Min 1 uppercase character
+  Min 1 number
+  Min 1 special characters */
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,10}$/g
+  if (pattern.test(req.body.password) === false) {
+    return res.status(409).json({
+      message: 'invalid password',
+    });
+  }
   User.find({ email: req.body.email })
     .exec()
     .then((user) => {
@@ -176,6 +188,18 @@ exports.sendPasswordResetEmail = async (req, res) => {
 }
 
 exports.receiveNewPassword = (req, res) => {
+/*Min character = 6
+  Max character = 10
+  Min 1 lowercase character
+  Min 1 uppercase character
+  Min 1 number
+  Min 1 special characters */
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,10}$/g
+  if (pattern.test(req.body.password) === false) {
+    return res.status(409).json({
+      message: 'invalid password',
+    });
+  }
   const { userId, token } = req.params
   const { password } = req.body
   User.findOne({ _id: userId })
