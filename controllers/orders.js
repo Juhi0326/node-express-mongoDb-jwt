@@ -1,6 +1,7 @@
 const Order = require('../models/order');
 const Product = require('../models/product');
 const User = require('../models/user')
+const loadash = require('lodash');
 const mongoose = require('mongoose');
 
 exports.order_get_all = (req, res, next) => {
@@ -46,43 +47,71 @@ exports.order_create = async (req, res, next) => {
         Error: err,
       });
     })
-    Product.findById(req.body.productId)
-    .then((product) => {
-      if (!product) {
-        return res.status(404).json({
-          message: 'Product not found',
+
+    Product.find()
+      .exec()
+      .then((products) => {
+        if (!products) {
+          return res.status(404).json({
+            message: 'Products not found',
+          });
+        }
+        const error = []
+        let errorIds = ''
+        let paramProducts = req.body.products || []
+        let fullCharge = null
+        paramProducts.map(obj => {
+          loadash.forEach(obj, function (value, key) {
+            if (key == '_id') {
+              let talalat = products.filter(product => JSON.stringify(product._id) === JSON.stringify(value._id));
+              if (talalat.length === 0) {
+                error.push(value)
+              } else {
+                console.log(talalat[0].price)
+                console.log(obj.quantity)
+                fullCharge += talalat[0].price * obj.quantity
+              }
+            }
+          })
+        })
+        if (error.length > 0) {
+          error.forEach(err => {
+            console.log(err._id)
+            errorIds += err._id + ','
+          })
+          errorIds = errorIds.substring(0, errorIds.length - 1)
+          throw new Error(`Products with this ids: ( ${errorIds} ) not found`)
+        }
+        const order = new Order({
+          _id: mongoose.Types.ObjectId(),
+          products: req.body.products,
+          user: req.body.userId,
+          fullCharge: fullCharge
         });
-      }
-      const order = new Order({
-        _id: mongoose.Types.ObjectId(),
-        quantity: req.body.quantity,
-        product: req.body.productId,
-        user: req.body.userId
+        console.log(order)
+        return order.save(); 
+      })
+      .then((result) => {
+        res.status(200).json({
+          message: 'Order created successfully!',
+          createdOrder: {
+            _id: result._id,
+            products: result.products,
+            user: result.user,
+            fullCharge: result.fullCharge
+          },
+          request: {
+            type: 'POST',
+            url: 'http://localhost:8081/orders/' + result._id,
+          },
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          message: err.message
+        });
       });
-      return order.save();
-    })
-    .then((result) => {
-      res.status(200).json({
-        message: 'Order created successfully!',
-        createdOrder: {
-          _id: result._id,
-          product: result.product,
-          quantity: result.quantity,
-          user: result.user
-        },
-        request: {
-          type: 'POST',
-          url: 'http://localhost:8081/orders/' + result._id,
-        },
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        message: 'Product or user not found',
-        Error: err,
-      });
-    });
   } catch (error) {
     console.log(error)
   }
@@ -122,53 +151,23 @@ exports.order_update_ById = (req, res, next) => {
       [{'propName' : 'product', 'value': 'product id'}
     ]
       */
-    let productId = '';
-    const updateOps = {};
-    for (const ops of req.body) {
-      if (ops.propName === 'productId') {
-        productId = ops.value;
-      }
-      updateOps[ops.propName] = ops.value;
+  let productId = '';
+  const updateOps = {};
+  for (const ops of req.body) {
+    if (ops.propName === 'productId') {
+      productId = ops.value;
     }
-  
-    //check product
-    if (productId !== '') {
-      Product.findById(productId).then((product) => {
-        if (!product) {
-          return res.status(404).json({
-            message: 'product not found',
-          });
-        } 
-        Order.findById(id).then((order) => {
-          if (!order) {
-            return res.status(404).json({
-              message: 'there is not an order with this id!'
-            })
-          }
-        })
-          Order.updateOne({ _id: id }, { $set: updateOps })
-            .exec()
-            .then((result) => {
-              res.status(200).json({
-                message: 'order updated',
-                request: {
-                  type: 'PATCH',
-                  url: 'http://localhost:8081/orders/' + id,
-                },
-              });
-            })
-            .catch((err) => {
-              res.status(500).json({
-                Error: err,
-              });
-            });
-        
-      }).catch((err) => {
-        res.status(500).json({
-          Error: err,
+    updateOps[ops.propName] = ops.value;
+  }
+
+  //check product
+  if (productId !== '') {
+    Product.findById(productId).then((product) => {
+      if (!product) {
+        return res.status(404).json({
+          message: 'product not found',
         });
-      });
-    } else {
+      }
       Order.findById(id).then((order) => {
         if (!order) {
           return res.status(404).json({
@@ -176,23 +175,53 @@ exports.order_update_ById = (req, res, next) => {
           })
         }
       })
-        Order.updateOne({ _id: id }, { $set: updateOps })
-          .exec()
-          .then((result) => {
-            res.status(200).json({
-              message: 'order updated',
-              request: {
-                type: 'PATCH',
-                url: 'http://localhost:8081/orders/' + id,
-              },
-            });
-          })
-          .catch((err) => {
-            res.status(500).json({
-              Error: err,
-            });
+      Order.updateOne({ _id: id }, { $set: updateOps })
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: 'order updated',
+            request: {
+              type: 'PATCH',
+              url: 'http://localhost:8081/orders/' + id,
+            },
           });
-    }
+        })
+        .catch((err) => {
+          res.status(500).json({
+            Error: err,
+          });
+        });
+
+    }).catch((err) => {
+      res.status(500).json({
+        Error: err,
+      });
+    });
+  } else {
+    Order.findById(id).then((order) => {
+      if (!order) {
+        return res.status(404).json({
+          message: 'there is not an order with this id!'
+        })
+      }
+    })
+    Order.updateOne({ _id: id }, { $set: updateOps })
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: 'order updated',
+          request: {
+            type: 'PATCH',
+            url: 'http://localhost:8081/orders/' + id,
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          Error: err,
+        });
+      });
+  }
 
 };
 
