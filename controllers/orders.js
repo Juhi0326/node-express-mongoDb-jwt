@@ -88,8 +88,18 @@ exports.order_create = async (req, res, next) => {
           user: req.body.userId,
           fullCharge: fullCharge
         });
+
+        /* így kell beküldeni postman-ből:
+        {  "products": 
+          [
+            {"_id":{ "_id": "60bf53d36ffbb46420444e8a"}, "quantity":100},
+            {"_id":{ "_id": "60c785d3b257f155285a9e14"}, "quantity":8}
+          ],
+          "userId":"61482bf79ac7f650f0119714"
+        }
+        */
         console.log(order)
-        return order.save(); 
+        return order.save();
       })
       .then((result) => {
         res.status(200).json({
