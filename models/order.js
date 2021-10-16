@@ -7,6 +7,8 @@ const orderSchema = mongoose.Schema({
       ref: 'Product',
       required: true,
     },
+    productName: { type: String },
+    price: { type: Number},
     quantity: { type: Number }
   }
   ],
@@ -15,7 +17,23 @@ const orderSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  fullCharge: { type: Number, required: true, }
+  fullCharge: { type: Number, required: true, },
+  accountAddress: 
+      {
+        postCode: { type: Number, required: true},
+        Location: { type: String, required: true},
+        street: { type: String, required: true},
+        houseNUmber: { type: String, required: true},
+        otherAddressData: String
+      },
+      deliveryAddress: 
+      {
+        postCode: { type: Number, required: true},
+        Location: { type: String, required: true},
+        street: { type: String, required: true},
+        houseNUmber: { type: String, required: true},
+        otherAddressData: String
+      }
 });
 
 module.exports = mongoose.model('Order', orderSchema);
