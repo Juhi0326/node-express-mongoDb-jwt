@@ -3,7 +3,6 @@ const Product = require('../models/product');
 const User = require('../models/user')
 const loadash = require('lodash');
 const mongoose = require('mongoose');
-const { isNull } = require('lodash');
 
 exports.order_get_all = (req, res, next) => {
   Order.find()
