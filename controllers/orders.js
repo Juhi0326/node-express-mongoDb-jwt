@@ -16,8 +16,12 @@ exports.order_get_all = (req, res, next) => {
         orders: docs.map((doc) => {
           return {
             _id: doc._id,
-            product: doc.product,
+            products: doc.products,
             quantity: doc.quantity,
+            user: doc.user,
+            fullCharge: doc.fullCharge,
+            accountAddress: doc.accountAddress,
+            deliveryAddress:doc.deliveryAddress,
             request: {
               type: 'GET',
               url: 'http://localhost:8081/orders/' + doc._id,
