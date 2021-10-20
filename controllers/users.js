@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-require('dotenv').config({ path: '../.env' });
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const emailModule = require('../modules/email')
-const nodemailer = require('nodemailer');
+const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('../modules/email');
 
 
 exports.user_signUp = (req, res, next) => {
@@ -149,21 +147,14 @@ exports.sendPasswordResetEmail = async (req, res) => {
   }
   const token = usePasswordHashToMakeToken(user)
 
-  const url = emailModule.getPasswordResetURL(user, token)
-  //const emailTemplate = emailModule.resetPasswordTemplate(user, url)
+  const url = getPasswordResetURL(user, token)
+  const emailTemplate = resetPasswordTemplate(user, url)
 
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD
-    }
-  });
 
   let mailOptions = {
     from: 'NOREPLY',
     to: user.email,
-    subject: 'password reset email',
+    subject: 'password reset link',
     html: `
     <p>Hey ${user.userName || user.email},</p>
     <p>We heard that you lost your password. Sorry about that!</p>
@@ -188,12 +179,12 @@ exports.sendPasswordResetEmail = async (req, res) => {
 }
 
 exports.receiveNewPassword = (req, res) => {
-/*Min character = 6
-  Max character = 10
-  Min 1 lowercase character
-  Min 1 uppercase character
-  Min 1 number
-  Min 1 special characters */
+  /*Min character = 6
+    Max character = 10
+    Min 1 lowercase character
+    Min 1 uppercase character
+    Min 1 number
+    Min 1 special characters */
   const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,10}$/g
   if (pattern.test(req.body.password) === false) {
     return res.status(409).json({

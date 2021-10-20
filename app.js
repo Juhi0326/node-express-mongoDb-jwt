@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env' });
 const express = require('express');
 const app = express();
 const productRoutes = require('./routes/productRoutes');
@@ -8,7 +9,6 @@ const homeSetup = require('./routes/homeSetup');
 const imageSetupRoutes = require('./routes/image');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
-require('dotenv').config();
 
 
 // database connection

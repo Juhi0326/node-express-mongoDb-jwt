@@ -153,6 +153,7 @@ exports.order_create = async (req, res, next) => {
 
 };
 
+//ez pillanatnyilag nem fog működni a megváltozott order model miatt - ha lesz idő, átt kell írni!
 exports.order_get_ById = (req, res, next) => {
   Order.findById(req.params.orderId)
     .populate('product', '-__v')
