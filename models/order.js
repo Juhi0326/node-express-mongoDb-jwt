@@ -9,7 +9,8 @@ const orderSchema = mongoose.Schema({
     },
     productName: { type: String },
     price: { type: Number},
-    quantity: { type: Number }
+    quantity: { type: Number },
+    storno: { type: Boolean, required: true}
   }
   ],
   user: {
@@ -17,6 +18,7 @@ const orderSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  
   fullCharge: { type: Number, required: true, },
   accountAddress: 
       {
@@ -34,6 +36,8 @@ const orderSchema = mongoose.Schema({
         houseNUmber: { type: String, required: true},
         otherAddressData: String
       }
-});
+}, { timestamps: true }
+
+);
 
 module.exports = mongoose.model('Order', orderSchema);

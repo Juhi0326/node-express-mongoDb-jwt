@@ -73,9 +73,13 @@ exports.order_create = async (req, res, next) => {
               } else {
                 console.log(talalat[0].price)
                 //obj = {...obj, price: talalat[0].price, productName: talalat[0].name }
-                obj = Object.assign(obj, {price: talalat[0].price}, {productName: talalat[0].name})
+                obj = Object.assign(obj, {price: talalat[0].price}, {productName: talalat[0].name}, {storno: false})
                 console.log(obj) 
                 console.log(obj.quantity)
+                if (obj.quantity < 1) {
+                  errorIds = obj._id._id
+                  throw new Error(`Products with this ids: ( ${errorIds} ) can not be 0!`)
+                }
                 fullCharge += talalat[0].price * obj.quantity
               }
             }
@@ -96,7 +100,7 @@ exports.order_create = async (req, res, next) => {
           user: req.body.userId,
           fullCharge: fullCharge,
           accountAddress: req.body.accountAddress,
-          deliveryAddress: req.body.deliveryAddress
+          deliveryAddress: req.body.deliveryAddress,
         });
  
         /* így kell beküldeni postman-ből:
@@ -136,7 +140,6 @@ exports.order_create = async (req, res, next) => {
             fullCharge: result.fullCharge,
             accountAddress: result.accountAddress,
             deliveryAddress: result.deliveryAddress
-
           },
           request: {
             type: 'POST',
@@ -155,8 +158,6 @@ exports.order_create = async (req, res, next) => {
   }
 
 };
-
-//ez pillanatnyilag nem fog működni a megváltozott order model miatt - ha lesz idő, átt kell írni!
 exports.order_get_ById = (req, res, next) => {
   Order.findById(req.params.orderId)
     .populate('product', '-__v')
@@ -182,22 +183,67 @@ exports.order_get_ById = (req, res, next) => {
       });
     });
 };
-
-exports.order_update_ById = (req, res, next) => {
+//ez pillanatnyilag nem fog működni a megváltozott order model miatt - ha lesz idő, átt kell írni!
+exports.order_update_ById = async (req, res, next) => {
   const id = req.params.orderId;
-  /*
-      így kell lekérni postman-ből:
-      [{'propName' : 'product', 'value': 'product id'}
-    ]
-      */
-  let productId = '';
-  const updateOps = {};
-  for (const ops of req.body) {
-    if (ops.propName === 'productId') {
-      productId = ops.value;
+  let tempOrderObject = {}
+  let updateObject = {}
+  
+ await Order.findById(id)
+ .exec()
+ .then((order) => {
+   console.log(order._doc)
+    tempOrderObject = Object.assign(tempOrderObject, order._doc)
+  }).catch((err) => {
+    console.log(err)
+  })
+ 
+  // tempOrderObject = Object.assign(tempOrderObject, tempOrderObject.products[0], {"quantity":52,})
+  console.log("ez innen jön" + JSON.stringify(tempOrderObject.products))
+  console.log(req.body) 
+  loadash.forEach(req.body, function (value, key){
+    console.log(key + ' ' + value) 
+    if (key === 'products' && loadash.isEmpty(value) === false) {
+      loadash.forEach(value, function(value2, key2){
+        // console.log(key2)
+        // console.log(value2)
+        if (key2 === 'new' && value2.length !== 0) { 
+          console.log('van új product a rendelés módosításban') 
+        } 
+        if (key2 === 'change' && value2.length !== 0) {
+          console.log('van product módosítás a rendelés módosításban')
+          console.log(key2);
+          console.log(value2);
+          for (let index = 0; index < value2.length; index ++) {
+            const element = value2[index];
+            //console.log(element.productId._id)
+            //console.log(tempOrderObject.products)
+            //console.log(value2[index].productId._id)
+            let index2 = tempOrderObject.products.findIndex( element => {
+              console.log(JSON.stringify(element._id))
+              console.log(JSON.stringify(value2[index].productId._id))
+              if (JSON.stringify(element._id) == JSON.stringify(value2[index].productId._id)) {
+                return true;
+              }
+            });
+            console.log(index2)
+            if (index2 > -1) {
+              updateObject = {...updateObject, ...{['products.' + index2 + '.quantity']: value2[index].quantity }}
+            }
+          }
+        } 
+      }) 
     }
-    updateOps[ops.propName] = ops.value;
-  }
+    if (key === 'userId' && loadash.isEmpty(value) === false) {
+      console.log(value)
+    }
+    if (key === 'accountAddress' && loadash.isEmpty(value) === false) {
+      console.log(value)
+    }
+    if (key === 'deliveryAddress' && loadash.isEmpty(value) === false) {
+      console.log(value)
+    }
+  }) 
 
   //check product
   if (productId !== '') {
@@ -214,7 +260,11 @@ exports.order_update_ById = (req, res, next) => {
           })
         }
       })
-      Order.updateOne({ _id: id }, { $set: updateOps })
+      Order.updateOne( 
+        { _id: id},
+        {$set: updateObject
+    }
+        )
         .exec()
         .then((result) => {
           res.status(200).json({
@@ -226,12 +276,14 @@ exports.order_update_ById = (req, res, next) => {
           });
         })
         .catch((err) => {
+          console.log(err)
           res.status(500).json({
             Error: err,
           });
         });
 
     }).catch((err) => {
+      console.log(err)
       res.status(500).json({
         Error: err,
       });
@@ -244,7 +296,7 @@ exports.order_update_ById = (req, res, next) => {
         })
       }
     })
-    Order.updateOne({ _id: id }, { $set: updateOps })
+/*     Order.updateOne({ _id: id }, { $set: updateOps })
       .exec()
       .then((result) => {
         res.status(200).json({
@@ -259,7 +311,7 @@ exports.order_update_ById = (req, res, next) => {
         res.status(500).json({
           Error: err,
         });
-      });
+      }); */
   }
 
 };
