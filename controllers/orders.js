@@ -20,7 +20,7 @@ exports.order_get_all = (req, res, next) => {
             user: doc.user,
             fullCharge: doc.fullCharge,
             accountAddress: doc.accountAddress,
-            deliveryAddress:doc.deliveryAddress,
+            deliveryAddress: doc.deliveryAddress,
             request: {
               type: 'GET',
               url: 'http://localhost:8081/orders/' + doc._id,
@@ -73,8 +73,8 @@ exports.order_create = async (req, res, next) => {
               } else {
                 console.log(talalat[0].price)
                 //obj = {...obj, price: talalat[0].price, productName: talalat[0].name }
-                obj = Object.assign(obj, {price: talalat[0].price}, {productName: talalat[0].name}, {storno: false})
-                console.log(obj) 
+                obj = Object.assign(obj, { price: talalat[0].price }, { productName: talalat[0].name }, { storno: false })
+                console.log(obj)
                 console.log(obj.quantity)
                 if (obj.quantity < 1) {
                   errorIds = obj._id._id
@@ -102,7 +102,7 @@ exports.order_create = async (req, res, next) => {
           accountAddress: req.body.accountAddress,
           deliveryAddress: req.body.deliveryAddress,
         });
- 
+
         /* így kell beküldeni postman-ből:
 {  "products": [
     {"_id":{ "_id": "60bf53d36ffbb46420444e8a"}, "quantity":100},
@@ -126,9 +126,9 @@ exports.order_create = async (req, res, next) => {
           }
 }
         */
-       
+
         console.log(order)
-        return order.save(); 
+        return order.save();
       })
       .then((result) => {
         res.status(200).json({
@@ -183,137 +183,110 @@ exports.order_get_ById = (req, res, next) => {
       });
     });
 };
-//ez pillanatnyilag nem fog működni a megváltozott order model miatt - ha lesz idő, átt kell írni!
 exports.order_update_ById = async (req, res, next) => {
   const id = req.params.orderId;
   let tempOrderObject = {}
   let updateObject = {}
-  
- await Order.findById(id)
- .exec()
- .then((order) => {
-   console.log(order._doc)
-    tempOrderObject = Object.assign(tempOrderObject, order._doc)
-  }).catch((err) => {
-    console.log(err)
-  })
- 
-  // tempOrderObject = Object.assign(tempOrderObject, tempOrderObject.products[0], {"quantity":52,})
-  console.log("ez innen jön" + JSON.stringify(tempOrderObject.products))
-  console.log(req.body) 
-  loadash.forEach(req.body, function (value, key){
-    console.log(key + ' ' + value) 
+  const error = []
+  console.log(req.body.userId)
+  if (req.body.userId !== '') {
+    try {
+      await User.findById(req.body.userId).then((user) => {
+        if (!user) {
+          return res.status(404).json({
+            message: 'user not found',
+          });
+        }
+      }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          message: 'user not found',
+          Error: err,
+        });
+      })
+      
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        message: 'user not found',
+        Error: error,
+      });
+    }
+  }
+
+  await Order.findById(id)
+    .exec()
+    .then((order) => {
+      console.log(order._doc)
+      tempOrderObject = Object.assign(tempOrderObject, order._doc)
+    }).catch((err) => {
+      console.log(err)
+    })
+  loadash.forEach(req.body, function (value, key) {
     if (key === 'products' && loadash.isEmpty(value) === false) {
-      loadash.forEach(value, function(value2, key2){
-        // console.log(key2)
-        // console.log(value2)
-        if (key2 === 'new' && value2.length !== 0) { 
-          console.log('van új product a rendelés módosításban') 
-        } 
+      loadash.forEach(value, function (value2, key2) {
         if (key2 === 'change' && value2.length !== 0) {
-          console.log('van product módosítás a rendelés módosításban')
-          console.log(key2);
-          console.log(value2);
-          for (let index = 0; index < value2.length; index ++) {
+          for (let index = 0; index < value2.length; index++) {
             const element = value2[index];
-            //console.log(element.productId._id)
-            //console.log(tempOrderObject.products)
-            //console.log(value2[index].productId._id)
-            let index2 = tempOrderObject.products.findIndex( element => {
-              console.log(JSON.stringify(element._id))
-              console.log(JSON.stringify(value2[index].productId._id))
+            let index2 = tempOrderObject.products.findIndex(element => {
               if (JSON.stringify(element._id) == JSON.stringify(value2[index].productId._id)) {
                 return true;
               }
             });
-            console.log(index2)
             if (index2 > -1) {
-              updateObject = {...updateObject, ...{['products.' + index2 + '.quantity']: value2[index].quantity }}
+              updateObject = {
+                ...updateObject, ...{
+                  ['products.' + index2 + '.quantity']: value2[index].quantity,
+                  ['products.' + index2 + '.storno']: value2[index].storno
+                }
+              }
+            } else {
+              error.push(`There is no product with this id (${JSON.stringify(value2[index].productId._id)}) in this order`)
             }
           }
-        } 
-      }) 
+        }
+      })
     }
+    console.log(updateObject)
     if (key === 'userId' && loadash.isEmpty(value) === false) {
-      console.log(value)
+      updateObject = {...updateObject, ...{user: req.body.userId}}      
     }
     if (key === 'accountAddress' && loadash.isEmpty(value) === false) {
       console.log(value)
+      updateObject = {...updateObject, ...{accountAddress: req.body.accountAddress}}
     }
     if (key === 'deliveryAddress' && loadash.isEmpty(value) === false) {
       console.log(value)
+      updateObject = {...updateObject, ...{deliveryAddress: req.body.deliveryAddress}}
     }
-  }) 
-
-  //check product
-  if (productId !== '') {
-    Product.findById(productId).then((product) => {
-      if (!product) {
-        return res.status(404).json({
-          message: 'product not found',
-        });
-      }
-      Order.findById(id).then((order) => {
-        if (!order) {
-          return res.status(404).json({
-            message: 'there is not an order with this id!'
-          })
-        }
-      })
-      Order.updateOne( 
-        { _id: id},
-        {$set: updateObject
+  })
+  if (loadash.isEmpty(error) === false) {
+    return res.status(404).json({
+      messages: error,
+    });
+  }
+  Order.updateOne(
+    { _id: id },
+    {
+      $set: updateObject
     }
-        )
-        .exec()
-        .then((result) => {
-          res.status(200).json({
-            message: 'order updated',
-            request: {
-              type: 'PATCH',
-              url: 'http://localhost:8081/orders/' + id,
-            },
-          });
-        })
-        .catch((err) => {
-          console.log(err)
-          res.status(500).json({
-            Error: err,
-          });
-        });
-
-    }).catch((err) => {
+  )
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: 'order updated',
+        request: {
+          type: 'PATCH',
+          url: 'http://localhost:8081/orders/' + id,
+        },
+      });
+    })
+    .catch((err) => {
       console.log(err)
       res.status(500).json({
         Error: err,
       });
     });
-  } else {
-    Order.findById(id).then((order) => {
-      if (!order) {
-        return res.status(404).json({
-          message: 'there is not an order with this id!'
-        })
-      }
-    })
-/*     Order.updateOne({ _id: id }, { $set: updateOps })
-      .exec()
-      .then((result) => {
-        res.status(200).json({
-          message: 'order updated',
-          request: {
-            type: 'PATCH',
-            url: 'http://localhost:8081/orders/' + id,
-          },
-        });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          Error: err,
-        });
-      }); */
-  }
-
 };
 
 exports.order_delete_ById = (req, res, next) => {
