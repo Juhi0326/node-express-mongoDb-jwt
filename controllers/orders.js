@@ -184,6 +184,45 @@ exports.order_get_ById = (req, res, next) => {
     });
 };
 exports.order_update_ById = async (req, res, next) => {
+  /*
+  így kell beküldeni postman-ből:
+  {
+    "products": {
+        "change": [
+            {
+                "productId": {
+                    "_id": "60c785d3b257f155285a9e14"
+                },
+                "quantity": 500,
+                "storno": true
+            },
+            {
+                "productId": {
+                    "_id": "60bf53d36ffbb46420444e8a"
+                },
+                "quantity": 18,
+                "storno": false
+            }
+        ]
+    },
+    "userId": "61482ba39ac7f650f0119712",
+    "accountAddress": {
+        "postCode": 1035,
+        "Location": "Budapest",
+        "street": "Juhász Gyula utca",
+        "houseNUmber": 36,
+        "otherAddressData": ""
+    },
+    "deliveryAddress": {
+        "postCode": 1039,
+        "Location": "Budapest",
+        "street": "Őrlő köz",
+        "houseNUmber": 3,
+        "otherAddressData": ""
+    }
+}
+  */
+
   const id = req.params.orderId;
   let tempOrderObject = {}
   let updateObject = {}
@@ -198,14 +237,7 @@ exports.order_update_ById = async (req, res, next) => {
             message: 'user not found',
           });
         }
-      }).catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: 'user not found',
-          Error: err,
-        });
       })
-
     } catch (error) {
       console.log(error);
       res.status(500).json({
