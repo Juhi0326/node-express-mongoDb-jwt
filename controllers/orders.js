@@ -188,6 +188,7 @@ exports.order_update_ById = async (req, res, next) => {
   let tempOrderObject = {}
   let updateObject = {}
   const error = []
+  let tempFullCharge = null;
   console.log(req.body.userId)
   if (req.body.userId !== '') {
     try {
@@ -204,7 +205,7 @@ exports.order_update_ById = async (req, res, next) => {
           Error: err,
         });
       })
-      
+
     } catch (error) {
       console.log(error);
       res.status(500).json({
@@ -213,7 +214,6 @@ exports.order_update_ById = async (req, res, next) => {
       });
     }
   }
-
   await Order.findById(id)
     .exec()
     .then((order) => {
@@ -240,6 +240,8 @@ exports.order_update_ById = async (req, res, next) => {
                   ['products.' + index2 + '.storno']: value2[index].storno
                 }
               }
+              tempOrderObject.products[index2].storno = value2[index].storno
+              tempOrderObject.products[index2].quantity = value2[index].quantity
             } else {
               error.push(`There is no product with this id (${JSON.stringify(value2[index].productId._id)}) in this order`)
             }
@@ -247,17 +249,17 @@ exports.order_update_ById = async (req, res, next) => {
         }
       })
     }
-    console.log(updateObject)
+    
     if (key === 'userId' && loadash.isEmpty(value) === false) {
-      updateObject = {...updateObject, ...{user: req.body.userId}}      
+      updateObject = { ...updateObject, ...{ user: req.body.userId } }
     }
     if (key === 'accountAddress' && loadash.isEmpty(value) === false) {
       console.log(value)
-      updateObject = {...updateObject, ...{accountAddress: req.body.accountAddress}}
+      updateObject = { ...updateObject, ...{ accountAddress: req.body.accountAddress } }
     }
     if (key === 'deliveryAddress' && loadash.isEmpty(value) === false) {
       console.log(value)
-      updateObject = {...updateObject, ...{deliveryAddress: req.body.deliveryAddress}}
+      updateObject = { ...updateObject, ...{ deliveryAddress: req.body.deliveryAddress } }
     }
   })
   if (loadash.isEmpty(error) === false) {
@@ -265,6 +267,23 @@ exports.order_update_ById = async (req, res, next) => {
       messages: error,
     });
   }
+  console.log(tempOrderObject)
+  loadash.forEach(tempOrderObject, function (value, key){
+    if (key === 'products') {
+      loadash.forEach(value, function (value2, key2) {
+        if (value2.storno === true) {
+          tempFullCharge += 0
+        } else {
+          tempFullCharge += value2.price * value2.quantity
+        }
+      });
+    }
+  });
+  updateObject = {
+    ...updateObject, ...{fullCharge: tempFullCharge   
+    }
+  }
+console.log(updateObject)
   Order.updateOne(
     { _id: id },
     {
