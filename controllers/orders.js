@@ -40,17 +40,15 @@ exports.order_create = async (req, res, next) => {
   try {
     await User.findById(req.body.userId).then((user) => {
       if (!user) {
-        return res.status(404).json({
-          message: 'user not found',
-        });
+      throw new Error('user not found')
       }
-    }).catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        message: 'user not found',
-        Error: err,
-      });
     })
+  } catch (error) {
+    return res.status(404).json({
+      message: 'user not found',
+    });
+  }
+
 
     Product.find()
       .exec()
@@ -153,11 +151,8 @@ exports.order_create = async (req, res, next) => {
           message: err.message
         });
       });
-  } catch (error) {
-    console.log(error)
-  }
+  } 
 
-};
 exports.order_get_ById = (req, res, next) => {
   Order.findById(req.params.orderId)
     .populate('product', '-__v')
