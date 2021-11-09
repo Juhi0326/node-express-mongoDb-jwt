@@ -110,6 +110,37 @@ exports.user_login = (req, res, next) => {
     });
 };
 
+exports.user_get_all = (req, res, next) => {
+  User.find()
+    .select('-__v')
+    .exec()
+    .then((docs) => {
+      const response = {
+        count: docs.length,
+        users: docs.map((doc) => {
+          return {
+            userName: doc.userName,
+            email:doc.email,
+            role: doc.role,
+            createdAt: doc.createdAt,
+            updatedAt: doc.updatedAt,
+            _id: doc._id,
+            request: {
+              type: 'GET',
+              url: 'http://localhost:8081/users/' + doc._id,
+            },
+          };
+        }),
+      };
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        Error: err,
+      });
+    })
+}
+
 exports.user_delete = (req, res, next) => {
   User.deleteOne({ _id: req.params.userId })
     .exec()
