@@ -7,9 +7,11 @@ const checkProducts = (requestObject, products) => {
     const error = []
     let errorIds = ''
     let fullCharge = null
+    let isProduct = false
     requestObject.map(obj => {
         loadash.forEach(obj, function (value, key) {
             if (key == '_id') {
+                isProduct = true
                 let talalat = products.filter(product => JSON.stringify(product._id) === JSON.stringify(value._id));
                 if (talalat.length === 0) {
                     error.push(value)
@@ -36,7 +38,9 @@ const checkProducts = (requestObject, products) => {
         errorIds = errorIds.substring(0, errorIds.length - 1)
         throw new Error(`Products with this ids: ( ${errorIds} ) not found`)
     }
-
+    if (isProduct === false) {
+        throw new Error('missing products!')
+    }
     requestObject.push({ fullCharge })
     return requestObject
 }
