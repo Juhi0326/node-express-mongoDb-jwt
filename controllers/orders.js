@@ -3,7 +3,7 @@ const Product = require('../models/product');
 const User = require('../models/user')
 const loadash = require('lodash');
 const mongoose = require('mongoose');
-const {checkProducts} = require('../modules/services/orderService')
+const { checkProducts, compileOrderUpdateObject } = require('../modules/services/orderService')
 
 exports.order_get_all = (req, res, next) => {
   Order.find()
@@ -41,7 +41,7 @@ exports.order_create = async (req, res, next) => {
   try {
     await User.findById(req.body.userId).then((user) => {
       if (!user) {
-      throw new Error('user not found')
+        throw new Error('user not found')
       }
     })
   } catch (error) {
@@ -50,82 +50,82 @@ exports.order_create = async (req, res, next) => {
     });
   }
 
-    Product.find()
-      .exec()
-      .then((products) => {
-        if (!products) {
-          return res.status(404).json({
-            message: 'Products not found',
-          });
-        }
-        let paramProducts = req.body.products || []
-        // logic in orderService
-        const productArray = checkProducts(paramProducts, products)
-        //get fullCharge variable
-        let fullCharge = productArray[productArray.length-1].fullCharge
-        //delete fullCharge from productArray
-        productArray.pop() 
-        const order = new Order({
-          _id: mongoose.Types.ObjectId(),
-          products: productArray,
-          user: req.body.userId,
-          fullCharge: fullCharge,
-          accountAddress: req.body.accountAddress,
-          deliveryAddress: req.body.deliveryAddress,
+  Product.find()
+    .exec()
+    .then((products) => {
+      if (!products) {
+        return res.status(404).json({
+          message: 'Products not found',
         });
-
-        /* így kell beküldeni postman-ből:
-        send from postman
-{  "products": [
-    {"_id":{ "_id": "60bf53d36ffbb46420444e8a"}, "quantity":100},
-    {"_id":{ "_id": "60c785d3b257f155285a9e14"}, "quantity":8}
-      
-   ],
-    "userId":"61482bf79ac7f650f0119714",
-     "accountAddress": {
-            "postCode": 1031,
-            "Location": "Budapest",
-            "street": "valami utca",
-            "houseNUmber": 3,
-            "otherAddressData": ""
-          },
-          "deliveryAddress": {
-            "postCode": 1031,
-            "Location": "Budapest",
-            "street": "valami tér",
-            "houseNUmber": 3,
-            "otherAddressData": ""
-          }
-}
-        */
-
-        console.log(order)
-        return order.save();
-      })
-      .then((result) => {
-        res.status(200).json({
-          message: 'Order created successfully!',
-          createdOrder: {
-            _id: result._id,
-            products: result.products,
-            user: result.user,
-            fullCharge: result.fullCharge,
-            accountAddress: result.accountAddress,
-            deliveryAddress: result.deliveryAddress
-          },
-          request: {
-            type: 'POST',
-            url: 'http://localhost:8081/orders/' + result._id,
-          },
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json({
-          message: err.message
-        });
+      }
+      let paramProducts = req.body.products || []
+      // logic in orderService
+      const productArray = checkProducts(paramProducts, products)
+      //get fullCharge variable
+      let fullCharge = productArray[productArray.length - 1].fullCharge
+      //delete fullCharge from productArray
+      productArray.pop()
+      const order = new Order({
+        _id: mongoose.Types.ObjectId(),
+        products: productArray,
+        user: req.body.userId,
+        fullCharge: fullCharge,
+        accountAddress: req.body.accountAddress,
+        deliveryAddress: req.body.deliveryAddress,
       });
-  } 
+
+      /* így kell beküldeni postman-ből:
+      send from postman
+{  "products": [
+  {"_id":{ "_id": "60bf53d36ffbb46420444e8a"}, "quantity":100},
+  {"_id":{ "_id": "60c785d3b257f155285a9e14"}, "quantity":8}
+    
+ ],
+  "userId":"61482bf79ac7f650f0119714",
+   "accountAddress": {
+          "postCode": 1031,
+          "Location": "Budapest",
+          "street": "valami utca",
+          "houseNUmber": 3,
+          "otherAddressData": ""
+        },
+        "deliveryAddress": {
+          "postCode": 1031,
+          "Location": "Budapest",
+          "street": "valami tér",
+          "houseNUmber": 3,
+          "otherAddressData": ""
+        }
+}
+      */
+
+      console.log(order)
+      return order.save();
+    })
+    .then((result) => {
+      res.status(200).json({
+        message: 'Order created successfully!',
+        createdOrder: {
+          _id: result._id,
+          products: result.products,
+          user: result.user,
+          fullCharge: result.fullCharge,
+          accountAddress: result.accountAddress,
+          deliveryAddress: result.deliveryAddress
+        },
+        request: {
+          type: 'POST',
+          url: 'http://localhost:8081/orders/' + result._id,
+        },
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: err.message
+      });
+    });
+}
 
 exports.order_get_ById = (req, res, next) => {
   Order.findById(req.params.orderId)
@@ -197,7 +197,7 @@ exports.order_update_ById = async (req, res, next) => {
   let updateObject = {}
   const error = []
   let tempFullCharge = null;
-  console.log(req.body.userId)
+
   if (req.body.userId !== '') {
     try {
       await User.findById(req.body.userId).then((user) => {
@@ -218,95 +218,41 @@ exports.order_update_ById = async (req, res, next) => {
   await Order.findById(id)
     .exec()
     .then((order) => {
-      console.log(order._doc)
       tempOrderObject = Object.assign(tempOrderObject, order._doc)
     }).catch((err) => {
       console.log(err)
     })
-  loadash.forEach(req.body, function (value, key) {
-    if (key === 'products' && loadash.isEmpty(value) === false) {
-      loadash.forEach(value, function (value2, key2) {
-        if (key2 === 'change' && value2.length !== 0) {
-          for (let index = 0; index < value2.length; index++) {
-            const element = value2[index];
-            let index2 = tempOrderObject.products.findIndex(element => {
-              if (JSON.stringify(element._id) == JSON.stringify(value2[index].productId._id)) {
-                return true;
-              }
-            });
-            if (index2 > -1) {
-              updateObject = {
-                ...updateObject, ...{
-                  ['products.' + index2 + '.quantity']: value2[index].quantity,
-                  ['products.' + index2 + '.storno']: value2[index].storno
-                }
-              }
-              tempOrderObject.products[index2].storno = value2[index].storno
-              tempOrderObject.products[index2].quantity = value2[index].quantity
-            } else {
-              error.push(`There is no product with this id (${JSON.stringify(value2[index].productId._id)}) in this order`)
-            }
-          }
-        }
+  try {
+    const orderObject = req.body;
+    updateObject = compileOrderUpdateObject(tempOrderObject, updateObject, orderObject);
+    Order.updateOne(
+      { _id: id },
+      {
+        $set: updateObject
+      }
+    )
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: 'order updated',
+          request: {
+            type: 'PATCH',
+            url: 'http://localhost:8081/orders/' + id,
+          },
+        });
       })
-    }
-    
-    if (key === 'userId' && loadash.isEmpty(value) === false) {
-      updateObject = { ...updateObject, ...{ user: req.body.userId } }
-    }
-    if (key === 'accountAddress' && loadash.isEmpty(value) === false) {
-      console.log(value)
-      updateObject = { ...updateObject, ...{ accountAddress: req.body.accountAddress } }
-    }
-    if (key === 'deliveryAddress' && loadash.isEmpty(value) === false) {
-      console.log(value)
-      updateObject = { ...updateObject, ...{ deliveryAddress: req.body.deliveryAddress } }
-    }
-  })
-  if (loadash.isEmpty(error) === false) {
-    return res.status(404).json({
-      messages: error,
+      .catch((err) => {
+        console.log(err)
+        res.status(500).json({
+          Error: err,
+        });
+      });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      Error: error.message,
     });
   }
-  console.log(tempOrderObject)
-  loadash.forEach(tempOrderObject, function (value, key){
-    if (key === 'products') {
-      loadash.forEach(value, function (value2, key2) {
-        if (value2.storno === true) {
-          tempFullCharge += 0
-        } else {
-          tempFullCharge += value2.price * value2.quantity
-        }
-      });
-    }
-  });
-  updateObject = {
-    ...updateObject, ...{fullCharge: tempFullCharge   
-    }
-  }
-console.log(updateObject)
-  Order.updateOne(
-    { _id: id },
-    {
-      $set: updateObject
-    }
-  )
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: 'order updated',
-        request: {
-          type: 'PATCH',
-          url: 'http://localhost:8081/orders/' + id,
-        },
-      });
-    })
-    .catch((err) => {
-      console.log(err)
-      res.status(500).json({
-        Error: err,
-      });
-    });
 };
 
 exports.order_delete_ById = (req, res, next) => {
