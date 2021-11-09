@@ -3,6 +3,7 @@ const Product = require('../models/product');
 const User = require('../models/user')
 const loadash = require('lodash');
 const mongoose = require('mongoose');
+const {checkProducts} = require('../modules/services/orderService')
 
 exports.order_get_all = (req, res, next) => {
   Order.find()
@@ -49,7 +50,6 @@ exports.order_create = async (req, res, next) => {
     });
   }
 
-
     Product.find()
       .exec()
       .then((products) => {
@@ -58,43 +58,16 @@ exports.order_create = async (req, res, next) => {
             message: 'Products not found',
           });
         }
-        const error = []
-        let errorIds = ''
         let paramProducts = req.body.products || []
-        let fullCharge = null
-        paramProducts.map(obj => {
-          loadash.forEach(obj, function (value, key) {
-            if (key == '_id') {
-              let talalat = products.filter(product => JSON.stringify(product._id) === JSON.stringify(value._id));
-              if (talalat.length === 0) {
-                error.push(value)
-              } else {
-                console.log(talalat[0].price)
-                //obj = {...obj, price: talalat[0].price, productName: talalat[0].name }
-                obj = Object.assign(obj, { price: talalat[0].price }, { productName: talalat[0].name }, { storno: false })
-                console.log(obj)
-                console.log(obj.quantity)
-                if (obj.quantity < 1) {
-                  errorIds = obj._id._id
-                  throw new Error(`Products with this ids: ( ${errorIds} ) can not be 0!`)
-                }
-                fullCharge += talalat[0].price * obj.quantity
-              }
-            }
-          })
-        })
-        if (error.length > 0) {
-          error.forEach(err => {
-            console.log(err._id)
-            errorIds += err._id + ','
-          })
-          errorIds = errorIds.substring(0, errorIds.length - 1)
-          throw new Error(`Products with this ids: ( ${errorIds} ) not found`)
-        }
-        console.log(paramProducts)
+        // logic in orderService
+        const productArray = checkProducts(paramProducts, products)
+        //get fullCharge variable
+        let fullCharge = productArray[productArray.length-1].fullCharge
+        //delete fullCharge from productArray
+        productArray.pop() 
         const order = new Order({
           _id: mongoose.Types.ObjectId(),
-          products: paramProducts,
+          products: productArray,
           user: req.body.userId,
           fullCharge: fullCharge,
           accountAddress: req.body.accountAddress,
@@ -102,6 +75,7 @@ exports.order_create = async (req, res, next) => {
         });
 
         /* így kell beküldeni postman-ből:
+        send from postman
 {  "products": [
     {"_id":{ "_id": "60bf53d36ffbb46420444e8a"}, "quantity":100},
     {"_id":{ "_id": "60c785d3b257f155285a9e14"}, "quantity":8}
