@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Order = require('../models/order');
+const loadash = require('lodash');
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('../modules/email');
 
 
@@ -252,3 +254,42 @@ exports.receiveNewPassword = (req, res) => {
       res.status(404).json("Invalid user")
     })
 }
+
+exports.order_get_all_by_userId = async (req, res, next) => {
+  const id = req.params.userId
+  console.log(id)
+  try {
+    await User.findById(id).then((user) => {
+      if (!user) {
+        throw new Error('user not found')
+      }
+    })
+  } catch (error) {
+    return res.status(404).json({
+      message: 'user not found',
+    });
+  }
+
+  Order.find()
+    .select('-__v')
+    .exec()
+    .then((orders)=> {
+      res.status(200).json({
+        count: orders.length,
+        orders: orders.map((doc) => {
+          let myOrders = orders.filter(order => JSON.stringify(id) === JSON.stringify(order.user));
+          if (loadash.isEmpty(myOrders) === true) {
+           throw new Error('There is no order with this user')
+        }
+            return {
+              myOrders
+            };
+        }),
+      });
+    }).catch((err) => {
+      res.status(500).json({
+        Error: err.message,
+      });
+    })
+}
+

@@ -46,11 +46,16 @@ const checkProducts = (requestObject, products) => {
 const compileOrderUpdateObject = (tempOrderObject, updateObject, orderObject) => {
     /*ez a függvény ellenőrzi, hogy valóban van-e olyan product, ami a rendelés módosításában érkezett, 
 és újra számolja a rendelés végösszegét. Hiba esetén visszatér a hibával.
+tempOrderObject = az eredeti megrendelés
+updateObject = üres object, itt lesz összeállítva az update, ez megy majd be az adatbázisba
+orderObject = request body
 */
     const error = []
     let errorIds = ''
     let fullCharge = null
     let tempFullCharge = null;
+    let orderStorno = false;
+    let stornoCount = 0;
 
     loadash.forEach(orderObject, function (value, key) {
         if (key === 'products' && loadash.isEmpty(value) === false) {
@@ -92,17 +97,26 @@ const compileOrderUpdateObject = (tempOrderObject, updateObject, orderObject) =>
     if (loadash.isEmpty(error) === false) {
         throw new Error(error)
     }
+    /* ez a függvény átszámolja a rendelés végösszegét, ha valamelyik product-nál a storno értéke true, akkor 
+    0-át ad hozzá.
+    */
     loadash.forEach(tempOrderObject, function (value, key) {
         if (key === 'products') {
             loadash.forEach(value, function (value2, key2) {
                 if (value2.storno === true) {
                     tempFullCharge += 0
+                    stornoCount ++;
                 } else {
                     tempFullCharge += value2.price * value2.quantity
                 }
             });
         }
     });
+    console.log(tempOrderObject.products.length);
+    if (stornoCount === tempOrderObject.products.length ) {
+        console.log( 'a rendelés minden terméke stórnózva lett, így maga a rendelés is.')
+    }
+
     updateObject = {
         ...updateObject, ...{
             fullCharge: tempFullCharge
