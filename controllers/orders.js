@@ -19,7 +19,7 @@ exports.order_get_all = (req, res, next) => {
             products: doc.products,
             quantity: doc.quantity,
             user: doc.user,
-            fullCharge: doc.fullCharge,
+            fullProductPrice: doc.fullProductPrice,
             accountAddress: doc.accountAddress,
             deliveryAddress: doc.deliveryAddress,
             request: {
@@ -61,15 +61,15 @@ exports.order_create = async (req, res, next) => {
       let paramProducts = req.body.products || []
       // logic in orderService
       const productArray = checkProducts(paramProducts, products)
-      //get fullCharge variable
-      let fullCharge = productArray[productArray.length - 1].fullCharge
-      //delete fullCharge from productArray
+      //get fullProductPrice variable
+      let fullProductPrice = productArray[productArray.length - 1].fullProductPrice
+      //delete fullProductPrice from productArray
       productArray.pop()
       const order = new Order({
         _id: mongoose.Types.ObjectId(),
         products: productArray,
         user: req.body.userId,
-        fullCharge: fullCharge,
+        fullProductPrice: fullProductPrice,
         accountAddress: req.body.accountAddress,
         deliveryAddress: req.body.deliveryAddress,
         status: 'active'
@@ -111,7 +111,7 @@ exports.order_create = async (req, res, next) => {
           _id: result._id,
           products: result.products,
           user: result.user,
-          fullCharge: result.fullCharge,
+          fullProductPrice: result.fullProductPrice,
           accountAddress: result.accountAddress,
           deliveryAddress: result.deliveryAddress,
           status: result.status
@@ -199,7 +199,7 @@ exports.order_update_ById = async (req, res, next) => {
   let tempOrderObject = {}
   let updateObject = {}
   const error = []
-  let tempFullCharge = null;
+  let tempfullProductPrice = null;
 
   if (req.body.userId !== '') {
     try {

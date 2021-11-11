@@ -6,7 +6,7 @@ const loadash = require('lodash');
 const checkProducts = (requestObject, products) => {
     const error = []
     let errorIds = ''
-    let fullCharge = null
+    let fullProductPrice = null
     let isProduct = false
     requestObject.map(obj => {
         loadash.forEach(obj, function (value, key) {
@@ -24,7 +24,7 @@ const checkProducts = (requestObject, products) => {
                         errorIds = obj._id._id
                         throw new Error(`Products with this ids: ( ${errorIds} ) can not be 0!`)
                     }
-                    fullCharge += talalat[0].price * obj.quantity
+                    fullProductPrice += talalat[0].price * obj.quantity
                 }
             }
         })
@@ -40,7 +40,7 @@ const checkProducts = (requestObject, products) => {
     if (isProduct === false) {
         throw new Error('missing products!')
     }
-    requestObject.push({ fullCharge })
+    requestObject.push({ fullProductPrice })
     return requestObject
 }
 const compileOrderUpdateObject = (tempOrderObject, updateObject, orderObject) => {
@@ -52,8 +52,8 @@ orderObject = request body
 */
     const error = []
     let errorIds = ''
-    let fullCharge = null
-    let tempFullCharge = null;
+    let fullProductPrice = null
+    let tempfullProductPrice = null;
     let orderStorno = false;
     let stornoCount = 0;
 
@@ -104,10 +104,10 @@ orderObject = request body
         if (key === 'products') {
             loadash.forEach(value, function (value2, key2) {
                 if (value2.storno === true) {
-                    tempFullCharge += 0
+                    tempfullProductPrice += 0
                     stornoCount ++;
                 } else {
-                    tempFullCharge += value2.price * value2.quantity
+                    tempfullProductPrice += value2.price * value2.quantity
                 }
             });
         }
@@ -123,7 +123,7 @@ orderObject = request body
     }
     updateObject = {
         ...updateObject, ...{
-            fullCharge: tempFullCharge
+            fullProductPrice: tempfullProductPrice
         }
     }
     return updateObject;

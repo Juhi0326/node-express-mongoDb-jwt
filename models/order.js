@@ -24,7 +24,7 @@ const orderSchema = mongoose.Schema({
     enum: ['active', 'completed', 'orderStorno']
   },
   
-  fullCharge: { type: Number, required: true, },
+  fullProductPrice: { type: Number, required: true, },
   accountAddress: 
       {
         postCode: { type: Number, required: true},
