@@ -205,27 +205,17 @@ exports.order_update_ById = async (req, res, next) => {
     try {
       await User.findById(req.body.userId).then((user) => {
         if (!user) {
-          return res.status(404).json({
-            message: 'user not found',
-          });
+          throw new Error('User not found')
         }
       })
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        message: 'user not found',
-        Error: error,
-      });
-    }
-  }
-  await Order.findById(id)
+      await Order.findById(id)
     .exec()
     .then((order) => {
+      if (!order) {
+        throw new Error('Order not found')
+      }
       tempOrderObject = Object.assign(tempOrderObject, order._doc)
-    }).catch((err) => {
-      console.log(err)
     })
-  try {
     const orderObject = req.body;
     updateObject = compileOrderUpdateObject(tempOrderObject, updateObject, orderObject);
     Order.updateOne(
@@ -244,17 +234,11 @@ exports.order_update_ById = async (req, res, next) => {
           },
         });
       })
-      .catch((err) => {
-        console.log(err)
-        res.status(500).json({
-          Error: err,
-        });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
       });
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({
-      Error: error.message,
-    });
+    }
   }
 };
 
