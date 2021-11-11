@@ -114,15 +114,18 @@ orderObject = request body
     });
     console.log(tempOrderObject.products.length);
     if (stornoCount === tempOrderObject.products.length ) {
-        console.log( 'a rendelés minden terméke stórnózva lett, így maga a rendelés is.')
+        console.log( 'a rendelés minden terméke stórnózva lett, így maga a rendelés is.');
+        updateObject = {
+            ...updateObject, ...{
+                status: 'orderStorno'
+            }
+        }
     }
-
     updateObject = {
         ...updateObject, ...{
             fullCharge: tempFullCharge
         }
     }
-    console.log(updateObject)
     return updateObject;
 
 }

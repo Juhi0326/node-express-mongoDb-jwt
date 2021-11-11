@@ -72,6 +72,7 @@ exports.order_create = async (req, res, next) => {
         fullCharge: fullCharge,
         accountAddress: req.body.accountAddress,
         deliveryAddress: req.body.deliveryAddress,
+        status: 'active'
       });
 
       /* így kell beküldeni postman-ből:
@@ -103,6 +104,7 @@ exports.order_create = async (req, res, next) => {
       return order.save();
     })
     .then((result) => {
+      console.log(result)
       res.status(200).json({
         message: 'Order created successfully!',
         createdOrder: {
@@ -111,7 +113,8 @@ exports.order_create = async (req, res, next) => {
           user: result.user,
           fullCharge: result.fullCharge,
           accountAddress: result.accountAddress,
-          deliveryAddress: result.deliveryAddress
+          deliveryAddress: result.deliveryAddress,
+          status: result.status
         },
         request: {
           type: 'POST',
@@ -255,6 +258,46 @@ exports.order_update_ById = async (req, res, next) => {
   }
 };
 
+exports.closeOrderById = (req, res, next) => {
+
+  if (req.body.status !== 'orderStorno' && req.body.status !== 'completed' ) {
+    return res.status(404).json({
+      message: 'order status have to be "completed", or orderStorno!',
+    });
+  }
+
+  Order.findById(req.params.orderId)
+  .exec()
+  .then((order) => {
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found',
+      });
+    }
+    Order.updateOne(
+      { _id: req.params.orderId },
+      {
+        $set: {status: req.body.status }
+      }
+    )
+      .exec()
+      .then((result) => {
+        res.status(200).json({
+          message: 'order updated',
+          request: {
+            'new order status': req.body.status,
+            type: 'PATCH',
+            url: 'http://localhost:8081/orders/' + req.params.orderId,
+          },
+        });
+      })
+  }).catch((err) => {
+    return res.status(500).json({
+      message: err.message,
+    });
+  })
+
+}
 exports.order_delete_ById = (req, res, next) => {
   const id = req.params.orderId;
   Order.findById(id)

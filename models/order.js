@@ -18,6 +18,11 @@ const orderSchema = mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  status: {
+    type: String,
+    default: 'active',
+    enum: ['active', 'completed', 'orderStorno']
+  },
   
   fullCharge: { type: Number, required: true, },
   accountAddress: 

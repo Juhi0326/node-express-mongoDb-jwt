@@ -12,6 +12,8 @@ router.get('/:orderId', moderatorAuthMiddleware, orderController.order_get_ById 
 
 router.patch('/:orderId', moderatorAuthMiddleware, orderController.order_update_ById);
 
+router.patch('/close-order/:orderId', moderatorAuthMiddleware, orderController.closeOrderById);
+
 router.delete('/:orderId', moderatorAuthMiddleware, orderController.order_delete_ById);
 
 module.exports = router;
