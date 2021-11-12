@@ -201,21 +201,23 @@ exports.order_update_ById = async (req, res, next) => {
   const error = []
   let tempfullProductPrice = null;
 
-  if (req.body.userId !== '') {
-    try {
+
+  try {
+    if (req.body.userId) {
       await User.findById(req.body.userId).then((user) => {
         if (!user) {
           throw new Error('User not found')
         }
       })
-      await Order.findById(id)
-    .exec()
-    .then((order) => {
-      if (!order) {
-        throw new Error('Order not found')
-      }
-      tempOrderObject = Object.assign(tempOrderObject, order._doc)
-    })
+    }
+    await Order.findById(id)
+      .exec()
+      .then((order) => {
+        if (!order) {
+          throw new Error('Order not found')
+        }
+        tempOrderObject = Object.assign(tempOrderObject, order._doc)
+      })
     const orderObject = req.body;
     updateObject = compileOrderUpdateObject(tempOrderObject, updateObject, orderObject);
     Order.updateOne(
@@ -234,52 +236,52 @@ exports.order_update_ById = async (req, res, next) => {
           },
         });
       })
-    } catch (error) {
-      res.status(500).json({
-        message: error.message,
-      });
-    }
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
+
 };
 
 exports.closeOrderById = (req, res, next) => {
 
-  if (req.body.status !== 'orderStorno' && req.body.status !== 'completed' ) {
+  if (req.body.status !== 'orderStorno' && req.body.status !== 'completed') {
     return res.status(404).json({
       message: 'order status have to be "completed", or orderStorno!',
     });
   }
 
   Order.findById(req.params.orderId)
-  .exec()
-  .then((order) => {
-    if (!order) {
-      return res.status(404).json({
-        message: 'Order not found',
-      });
-    }
-    Order.updateOne(
-      { _id: req.params.orderId },
-      {
-        $set: {status: req.body.status }
-      }
-    )
-      .exec()
-      .then((result) => {
-        res.status(200).json({
-          message: 'order updated',
-          request: {
-            'new order status': req.body.status,
-            type: 'PATCH',
-            url: 'http://localhost:8081/orders/' + req.params.orderId,
-          },
+    .exec()
+    .then((order) => {
+      if (!order) {
+        return res.status(404).json({
+          message: 'Order not found',
         });
-      })
-  }).catch((err) => {
-    return res.status(500).json({
-      message: err.message,
-    });
-  })
+      }
+      Order.updateOne(
+        { _id: req.params.orderId },
+        {
+          $set: { status: req.body.status }
+        }
+      )
+        .exec()
+        .then((result) => {
+          res.status(200).json({
+            message: 'order updated',
+            request: {
+              'new order status': req.body.status,
+              type: 'PATCH',
+              url: 'http://localhost:8081/orders/' + req.params.orderId,
+            },
+          });
+        })
+    }).catch((err) => {
+      return res.status(500).json({
+        message: err.message,
+      });
+    })
 
 }
 exports.order_delete_ById = (req, res, next) => {
