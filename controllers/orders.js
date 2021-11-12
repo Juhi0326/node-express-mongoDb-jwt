@@ -194,13 +194,10 @@ exports.order_update_ById = async (req, res, next) => {
     }
 }
   */
-
   const id = req.params.orderId;
   let tempOrderObject = {}
-  let updateObject = {}
   const error = []
   let tempfullProductPrice = null;
-
 
   try {
     if (req.body.userId) {

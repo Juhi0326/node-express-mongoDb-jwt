@@ -43,11 +43,10 @@ const checkProducts = (requestObject, products) => {
     requestObject.push({ fullProductPrice })
     return requestObject
 }
-const compileOrderUpdateObject = (tempOrderObject, updateObject, orderObject) => {
+const compileOrderUpdateObject = (tempOrderObject, orderObject) => {
     /*ez a függvény ellenőrzi, hogy valóban van-e olyan product, ami a rendelés módosításában érkezett, 
 és újra számolja a rendelés végösszegét. Hiba esetén visszatér a hibával.
 tempOrderObject = az eredeti megrendelés
-updateObject = üres object, itt lesz összeállítva az update, ez megy majd be az adatbázisba
 orderObject = request body
 */
     const error = []
@@ -56,6 +55,8 @@ orderObject = request body
     let tempfullProductPrice = null;
     let orderStorno = false;
     let stornoCount = 0;
+    //ebben az objectben lesz összeállítva a változás a megrendelésben
+    let updateObject = {}
 
     loadash.forEach(orderObject, function (value, key) {
         if (key === 'products' && loadash.isEmpty(value) === false) {
