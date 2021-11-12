@@ -23,6 +23,15 @@ const orderSchema = mongoose.Schema({
     default: 'active',
     enum: ['active', 'completed', 'orderStorno']
   },
+  deliveryPrice: {
+    type: Number,
+    required: true,
+    default: 1500
+  },
+  fullCharge: {
+    type: Number,
+    required: true,
+  },
   
   fullProductPrice: { type: Number, required: true, },
   accountAddress: 

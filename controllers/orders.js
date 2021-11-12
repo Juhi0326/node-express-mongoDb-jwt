@@ -3,7 +3,7 @@ const Product = require('../models/product');
 const User = require('../models/user')
 const loadash = require('lodash');
 const mongoose = require('mongoose');
-const { checkProducts, compileOrderUpdateObject } = require('../modules/services/orderService')
+const { checkProducts, compileOrderUpdateObject, getFullCharge } = require('../modules/services/orderService')
 
 exports.order_get_all = (req, res, next) => {
   Order.find()
@@ -38,6 +38,7 @@ exports.order_get_all = (req, res, next) => {
 };
 
 exports.order_create = async (req, res, next) => {
+  let deliveryPrice = 1500
   try {
     await User.findById(req.body.userId).then((user) => {
       if (!user) {
@@ -63,6 +64,10 @@ exports.order_create = async (req, res, next) => {
       const productArray = checkProducts(paramProducts, products)
       //get fullProductPrice variable
       let fullProductPrice = productArray[productArray.length - 1].fullProductPrice
+      if (fullProductPrice > 10000) {
+        deliveryPrice = 0
+      }
+      let fullCharge = getFullCharge(fullProductPrice, deliveryPrice)
       //delete fullProductPrice from productArray
       productArray.pop()
       const order = new Order({
@@ -72,6 +77,8 @@ exports.order_create = async (req, res, next) => {
         fullProductPrice: fullProductPrice,
         accountAddress: req.body.accountAddress,
         deliveryAddress: req.body.deliveryAddress,
+        deliveryPrice: deliveryPrice,
+        fullCharge: fullCharge,
         status: 'active'
       });
 
@@ -114,6 +121,8 @@ exports.order_create = async (req, res, next) => {
           fullProductPrice: result.fullProductPrice,
           accountAddress: result.accountAddress,
           deliveryAddress: result.deliveryAddress,
+          deliveryPrice: result.deliveryPrice,
+          fullCharge: result.fullCharge,
           status: result.status
         },
         request: {
@@ -216,7 +225,7 @@ exports.order_update_ById = async (req, res, next) => {
         tempOrderObject = Object.assign(tempOrderObject, order._doc)
       })
     const orderObject = req.body;
-    updateObject = compileOrderUpdateObject(tempOrderObject, updateObject, orderObject);
+    updateObject = compileOrderUpdateObject(tempOrderObject, orderObject);
     Order.updateOne(
       { _id: id },
       {

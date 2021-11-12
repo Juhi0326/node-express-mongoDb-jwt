@@ -106,16 +106,18 @@ orderObject = request body
             loadash.forEach(value, function (value2, key2) {
                 if (value2.storno === true) {
                     tempfullProductPrice += 0
-                    stornoCount ++;
+                    stornoCount++;
                 } else {
                     tempfullProductPrice += value2.price * value2.quantity
                 }
             });
         }
     });
+    const fullCharge = tempfullProductPrice > 10000 && tempfullProductPrice || tempfullProductPrice + 1500
+    console.log(fullCharge);
     console.log(tempOrderObject.products.length);
-    if (stornoCount === tempOrderObject.products.length ) {
-        console.log( 'a rendelés minden terméke stórnózva lett, így maga a rendelés is.');
+    if (stornoCount === tempOrderObject.products.length) {
+        console.log('a rendelés minden terméke stórnózva lett, így maga a rendelés is.');
         updateObject = {
             ...updateObject, ...{
                 status: 'orderStorno'
@@ -127,8 +129,18 @@ orderObject = request body
             fullProductPrice: tempfullProductPrice
         }
     }
+
+    updateObject = {
+        ...updateObject, ...{ fullCharge: fullCharge }
+    }
+
     return updateObject;
 
 }
 
-module.exports = { checkProducts, compileOrderUpdateObject }
+const getFullCharge = (deliveryPrice, fullProductPrice) => {
+
+    return deliveryPrice + fullProductPrice;
+}
+
+module.exports = { checkProducts, compileOrderUpdateObject, getFullCharge }
