@@ -113,7 +113,8 @@ orderObject = request body
             });
         }
     });
-    const fullCharge = tempfullProductPrice > 10000 && tempfullProductPrice || tempfullProductPrice + 1500
+    const deliveryPrice = tempfullProductPrice > 10000 ? 0 : 1500
+    const fullCharge = getFullCharge(tempfullProductPrice, deliveryPrice)
     console.log(fullCharge);
     console.log(tempOrderObject.products.length);
     if (stornoCount === tempOrderObject.products.length) {
@@ -133,6 +134,11 @@ orderObject = request body
     updateObject = {
         ...updateObject, ...{ fullCharge: fullCharge }
     }
+
+    updateObject = {
+        ...updateObject, ...{ deliveryPrice: deliveryPrice }
+    }
+
 
     return updateObject;
 

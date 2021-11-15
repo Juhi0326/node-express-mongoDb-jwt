@@ -26,7 +26,6 @@ const orderSchema = mongoose.Schema({
   deliveryPrice: {
     type: Number,
     required: true,
-    default: 1500
   },
   fullCharge: {
     type: Number,
