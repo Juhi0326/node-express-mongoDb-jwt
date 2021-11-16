@@ -137,8 +137,8 @@ exports.product_update_byId = (req, res, next) => {
             });
           }
         });
-        const imgPath =  {imagePath: image.imagePath}
-        const mergedOps = {...updateOps,...imgPath}
+        const imgPath = { imagePath: image.imagePath }
+        const mergedOps = { ...updateOps, ...imgPath }
         Product.updateOne({ _id: id }, { $set: mergedOps })
           .exec()
           .then((result) => {
@@ -233,27 +233,28 @@ exports.add_discount_for_product_byId = (req, res, next) => {
     .exec()
     .then((product) => {
       if (!product) {
-       throw new Error('there is not a product with this id!')
-      } 
+        throw new Error('there is not a product with this id!')
+      }
       let tempProduct = {}
-      tempProduct = {...tempProduct, ...product._doc}
+      tempProduct = { ...tempProduct, ...product._doc }
       discountedPrice = countDiscountedPrice(percentage, tempProduct.price)
-      tempProduct = {...tempProduct, ...{discountedPrice},...{discountPercentage:percentage}}
+      tempProduct = { ...tempProduct, ...{ discountedPrice }, ...{ discountPercentage: percentage } }
       console.log(tempProduct)
       Product.updateOne({ _id: id }, { $set: tempProduct })
-      .exec()
-      .then((result) => {
-        console.log(result)
-        res.status(200).json({
-          message: {
-          'new discount' : percentage + '%',
-          'new discounted price' : discountedPrice},
-          request: {
-            type: 'PATCH',
-            url: 'http://localhost:8081/products/' + id,
-          },
-        });
-      })
+        .exec()
+        .then((result) => {
+          console.log(result)
+          res.status(200).json({
+            message: {
+              'new discount': percentage + '%',
+              'new discounted price': discountedPrice
+            },
+            request: {
+              type: 'PATCH',
+              url: 'http://localhost:8081/products/' + id,
+            },
+          });
+        })
     })
     .catch((err) => {
       return res.status(500).json({
