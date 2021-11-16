@@ -16,15 +16,15 @@ const checkProducts = (requestObject, products) => {
                 if (talalat.length === 0) {
                     error.push(value)
                 } else {
-                    console.log(talalat[0].price)
-                    obj = Object.assign(obj, { price: talalat[0].price }, { productName: talalat[0].name }, { storno: false })
+                    console.log(talalat[0].discountedPrice)
+                    obj = Object.assign(obj, { price: talalat[0].discountedPrice }, { productName: talalat[0].name }, { storno: false })
                     console.log(obj)
                     console.log(obj.quantity)
                     if (obj.quantity < 1) {
                         errorIds = obj._id._id
                         throw new Error(`Products with this ids: ( ${errorIds} ) can not be 0!`)
                     }
-                    fullProductPrice += talalat[0].price * obj.quantity
+                    fullProductPrice += talalat[0].discountedPrice * obj.quantity
                 }
             }
         })

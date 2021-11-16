@@ -14,10 +14,14 @@ exports.product_get_all = (req, res, next) => {
           return {
             name: doc.name,
             price: doc.price,
+            discountedPrice: doc.discountedPrice,
+            discountPercentage: doc.discountPercentage,
             description: doc.description,
             productImage: doc.image,
             imagePath: doc.imagePath,
             _id: doc._id,
+            createdAt: doc.createdAt,
+            updatedAt: doc.updatedAt,
             request: {
               type: 'GET',
               url: 'http://localhost:8081/products/' + doc._id,
@@ -35,6 +39,7 @@ exports.product_get_all = (req, res, next) => {
 };
 
 exports.product_create = (req, res, next) => {
+  let discountedPrice = null
   Image.findById(req.body.imageId)
     .then((image) => {
       if (!image) {
@@ -42,10 +47,13 @@ exports.product_create = (req, res, next) => {
           message: 'Image not found',
         });
       }
+      discountedPrice = countDiscountedPrice(req.body.discountPercentage, req.body.price)
       const product = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         price: req.body.price,
+        discountedPrice: discountedPrice,
+        discountPercentage: req.body.discountPercentage,
         description: req.body.description,
         imageId: req.body.imageId,
         imagePath: image.imagePath
@@ -59,10 +67,13 @@ exports.product_create = (req, res, next) => {
         createdProduct: {
           name: result.name,
           price: result.price,
+          discountedPrice: result.discountedPrice,
+          discountPercentage: result.discountPercentage + '%',
           description: result.description,
           imageId: result.imageId,
           imagePath: result.imagePath,
           id: result._id,
+          createdAt: result.createdAt,
           request: {
             type: 'GET',
             url: 'http://localhost:8081/products/' + result._id,
