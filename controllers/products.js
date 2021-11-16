@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const mongoose = require('mongoose');
 const Image = require('../models/image');
+const { countDiscountedPrice } = require('../modules/services/productService');
 
 exports.product_get_all = (req, res, next) => {
   Product.find()
@@ -216,6 +217,43 @@ exports.product_delete_byId = (req, res, next) => {
             });
           });
       }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        Error: err,
+      });
+    });
+};
+
+exports.add_discount_for_product_byId = (req, res, next) => {
+  let discountedPrice = null
+  const id = req.params.productId;
+  const percentage = req.body.percentage
+  Product.findById(id)
+    .exec()
+    .then((product) => {
+      if (!product) {
+       throw new Error('there is not a product with this id!')
+      } 
+      let tempProduct = {}
+      tempProduct = {...tempProduct, ...product._doc}
+      discountedPrice = countDiscountedPrice(percentage, tempProduct.price)
+      tempProduct = {...tempProduct, ...{discountedPrice},...{discountPercentage:percentage}}
+      console.log(tempProduct)
+      Product.updateOne({ _id: id }, { $set: tempProduct })
+      .exec()
+      .then((result) => {
+        console.log(result)
+        res.status(200).json({
+          message: {
+          'new discount' : percentage + '%',
+          'new discounted price' : discountedPrice},
+          request: {
+            type: 'PATCH',
+            url: 'http://localhost:8081/products/' + id,
+          },
+        });
+      })
     })
     .catch((err) => {
       return res.status(500).json({

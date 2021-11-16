@@ -15,6 +15,8 @@ router.get('/:productId', userAuthMiddleware, productController.product_get_one_
 
 router.patch('/:productId', adminAuthMiddleware, productController.product_update_byId);
 
+router.patch('/:productId/add-discount', adminAuthMiddleware, productController.add_discount_for_product_byId)
+
 router.delete('/:productId', adminAuthMiddleware, productController.product_delete_byId);
 
 module.exports = router;
