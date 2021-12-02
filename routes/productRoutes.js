@@ -7,11 +7,11 @@ const productController = require('../controllers/products');
 const {upload} = require('../multerStorage');
 
 
-router.get('/', userAuthMiddleware, productController.product_get_all);
+router.get('/', productController.product_get_all);
 
 router.post('/',adminAuthMiddleware, upload.single('productImage'), productController.product_create);
 
-router.get('/:productId', userAuthMiddleware, productController.product_get_one_ById);
+router.get('/:productId', productController.product_get_one_ById);
 
 router.patch('/:productId', adminAuthMiddleware, productController.product_update_byId);
 

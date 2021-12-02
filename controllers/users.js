@@ -174,13 +174,9 @@ exports.sendPasswordResetEmail = async (req, res) => {
   const { email } = req.body
   let user
   try {
-    user = await User.findOne({ email }).exec()
-  } catch (err) {
-    res.status(404).json("No user with that email")
-  }
-  const token = usePasswordHashToMakeToken(user)
-
-  const url = getPasswordResetURL(user, token)
+    user = await User.findOne({ email }).exec().then((user)=> {
+      const token = usePasswordHashToMakeToken(user)
+      const url = getPasswordResetURL(user, token)
   const emailTemplate = resetPasswordTemplate(user, url)
 
 
@@ -209,6 +205,16 @@ exports.sendPasswordResetEmail = async (req, res) => {
       });
     }
   })
+    }).catch((err) => {
+      console.log(err)
+      throw new Error('nincs ilyen email cím')
+    })
+    
+  } catch (err) {
+    return res.status(404).json({
+      Error: err.message
+    }) 
+  }
 }
 
 exports.receiveNewPassword = (req, res) => {
