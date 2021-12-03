@@ -113,50 +113,60 @@ exports.product2_create = (req, res, next) => {
 exports.product2_update_byId = async (req, res, next) => {
     let oldImage = null
     const id = req.params.productId
-    const product = await Product2.findById(id);
-    let updateOps = {}
-    updateOps = { ...product }
-    if (req.file) {
-        oldImage = updateOps._doc.imagePath
-        updateOps._doc.imagePath = req.file.path
-        deleteImageFromServer(oldImage)
-    }
-    console.log(updateOps._doc.imagePath)
-    if (req.body.discountPercentage && req.body.discountPercentage !== '0') {
-        if (req.body.price) {
-            let price = parseInt(req.body.price)
-            let discountPercentage = parseInt(req.body.discountPercentage)
-            updateOps._doc.price = price
-            updateOps._doc.discountedPrice = countDiscountedPrice(discountPercentage, price)
-            updateOps._doc.discountPercentage = discountPercentage
-        } else {
-            let discountPercentage = parseInt(req.body.discountPercentage)
-            updateOps._doc.discountedPrice = countDiscountedPrice(discountPercentage, updateOps._doc.price)
-            updateOps._doc.discountPercentage = discountPercentage
+    try {
+        const product = await Product2.findById(id)
+        if (!product) {
+            throw new Error('missing product')
         }
-    }
-    if (req.body.description) {
-        updateOps._doc.description = req.body.description
-    }
-    if (req.body.name) {
-        updateOps._doc.name = req.body.name
-    }
-    Product2.updateOne({ _id: id }, { $set: updateOps })
-        .exec()
-        .then((result) => {
-            res.status(200).json({
-                message: 'Product updated',
-                request: {
-                    type: 'PATCH',
-                    url: 'http://localhost:8081/products/' + id,
-                },
+        let updateOps = {}
+        updateOps = { ...product }
+        if (req.file) {
+            oldImage = updateOps._doc.imagePath
+            updateOps._doc.imagePath = req.file.path
+            deleteImageFromServer(oldImage)
+        }
+        //console.log(updateOps._doc.imagePath)
+        if (req.body.discountPercentage && req.body.discountPercentage !== '0') {
+            if (req.body.price) {
+                let price = parseInt(req.body.price)
+                let discountPercentage = parseInt(req.body.discountPercentage)
+                updateOps._doc.price = price
+                updateOps._doc.discountedPrice = countDiscountedPrice(discountPercentage, price)
+                updateOps._doc.discountPercentage = discountPercentage
+            } else {
+                let discountPercentage = parseInt(req.body.discountPercentage)
+                updateOps._doc.discountedPrice = countDiscountedPrice(discountPercentage, updateOps._doc.price)
+                updateOps._doc.discountPercentage = discountPercentage
+            }
+        }
+        if (req.body.description) {
+            updateOps._doc.description = req.body.description
+        }
+        if (req.body.name) {
+            updateOps._doc.name = req.body.name
+        }
+        Product2.updateOne({ _id: id }, { $set: updateOps })
+            .exec()
+            .then((result) => {
+                res.status(200).json({
+                    message: 'Product updated',
+                    request: {
+                        type: 'PATCH',
+                        url: 'http://localhost:8081/products2/' + id,
+                    },
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    Error: err,
+                });
             });
-        })
-        .catch((err) => {
-            res.status(500).json({
-                Error: err,
-            });
+    } catch (err) {
+        console.log(err);
+         res.status(500).json({
+            error: err.message,
         });
+    }
 }
 
 exports.product2_delete_byId = (req, res, next) => {
