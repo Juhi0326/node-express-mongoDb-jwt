@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env' });
 const express = require('express');
 const app = express();
 const productRoutes = require('./routes/productRoutes');
+const product2Routes = require('./routes/product2Routes')
 const orderRoutes = require('./routes/orders');
 const userRoutes = require('./routes/users');
 const homeRoute= require('./routes/home');
@@ -43,6 +44,7 @@ app.use('/home', homeRoute);
 app.use('/home-setup', homeSetup);
 app.use('/image-setup', imageSetupRoutes);
 app.use('/products', productRoutes);
+app.use('/products2', product2Routes);
 app.use('/orders', orderRoutes);
 app.use('/users', userRoutes);
 
