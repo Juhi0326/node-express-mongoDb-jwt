@@ -5,6 +5,7 @@ const productRoutes = require('./routes/productRoutes');
 const product2Routes = require('./routes/product2Routes')
 const orderRoutes = require('./routes/orders');
 const userRoutes = require('./routes/users');
+const homePageRoutes = require('./routes/homaPage2');
 const homeRoute= require('./routes/home');
 const homeSetup = require('./routes/homeSetup');
 const imageSetupRoutes = require('./routes/image');
@@ -41,6 +42,7 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static('uploads'));
 
 app.use('/home', homeRoute);
+app.use('/homePage', homePageRoutes);
 app.use('/home-setup', homeSetup);
 app.use('/image-setup', imageSetupRoutes);
 app.use('/products', productRoutes);
