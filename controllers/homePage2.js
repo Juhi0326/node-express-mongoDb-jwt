@@ -162,7 +162,7 @@ exports.homePage2_HeadingChange = (req, res, next) => {
                 updateOps.Heading.headingImagePath = req.file.path
             }
             if (req.body.Heading) {
-                updateOps.Heading.headingDescription = req.body.Title
+                updateOps.Heading.headingDescription = req.body.Heading
             }
             console.log(updateOps)
             HomePage2.updateOne({ _id: id }, { $set: updateOps })
@@ -184,3 +184,263 @@ exports.homePage2_HeadingChange = (req, res, next) => {
             });
         });
 };
+
+exports.homePage2_IntroductionChange = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Introduction: { introductionDescription: docs[0]._doc.Introduction.introductionDescription, introductionImagePath: docs[0]._doc.Introduction.introductionImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Introduction.introductionImagePath
+                updateOps.Introduction.introductionImagePath = req.file.path
+            }
+            if (req.body.Introduction) {
+                updateOps.Introduction.introductionDescription = req.body.Introduction
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(200).json({
+                        message: 'Home page Introduction is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_1Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_1: { section_1Description: docs[0]._doc.Section_1.section_1Description, section_1ImagePath: docs[0]._doc.Section_1.section_1ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_1.section_1ImagePath
+                updateOps.Section_1.section_1ImagePath = req.file.path
+            }
+            if (req.body.Section_1) {
+                updateOps.Section_1.section_1Description = req.body.Section_1
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(200).json({
+                        message: 'Home page Section_1 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_2Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_2: { section_2Description: docs[0]._doc.Section_2.section_2Description, section_2ImagePath: docs[0]._doc.Section_2.section_2ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_2.section_2ImagePath
+                updateOps.Section_2.section_2ImagePath = req.file.path
+            }
+            if (req.body.Section_2) {
+                updateOps.Section_2.section_2Description = req.body.Section_2
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(200).json({
+                        message: 'Home page Section_2 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_3Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_3: { section_3Description: docs[0]._doc.Section_3.section_3Description, section_3ImagePath: docs[0]._doc.Section_3.section_3ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_3.section_3ImagePath
+                updateOps.Section_3.section_3ImagePath = req.file.path
+            }
+            if (req.body.Section_3) {
+                updateOps.Section_3.section_3Description = req.body.Section_3
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(300).json({
+                        message: 'Home page Section_3 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_4Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_4: { section_4Description: docs[0]._doc.Section_4.section_4Description, section_4ImagePath: docs[0]._doc.Section_4.section_4ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_4.section_4ImagePath
+                updateOps.Section_4.section_4ImagePath = req.file.path
+            }
+            if (req.body.Section_4) {
+                updateOps.Section_4.section_4Description = req.body.Section_4
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(400).json({
+                        message: 'Home page Section_4 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_5Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_5: { section_5Description: docs[0]._doc.Section_5.section_5Description, section_5ImagePath: docs[0]._doc.Section_5.section_5ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_5.section_5ImagePath
+                updateOps.Section_5.section_5ImagePath = req.file.path
+            }
+            if (req.body.Section_5) {
+                updateOps.Section_5.section_5Description = req.body.Section_5
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(500).json({
+                        message: 'Home page Section_5 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                Error: err,
+            });
+        });
+};
+
+exports.homePage2_Section_6Change = (req, res, next) => {
+    let oldImage = null
+    HomePage2.find()
+        .select('-_v')
+        .exec()
+        .then((docs) => {
+            const homePage = docs[0]
+            const id = docs[0]._id
+            let updateOps = { Section_6: { section_6Description: docs[0]._doc.Section_6.section_6Description, section_6ImagePath: docs[0]._doc.Section_6.section_6ImagePath } }
+            if (req.file) {
+                oldImage = docs[0]._doc.Section_6.section_6ImagePath
+                updateOps.Section_6.section_6ImagePath = req.file.path
+            }
+            if (req.body.Section_6) {
+                updateOps.Section_6.section_6Description = req.body.Section_6
+            }
+            console.log(updateOps)
+            HomePage2.updateOne({ _id: id }, { $set: updateOps })
+                .exec()
+                .then(() => {
+                    if (oldImage) {
+                        deleteImageFromServer(oldImage)
+                    }
+                    res.status(600).json({
+                        message: 'Home page Section_6 is updated',
+                    })
+                }).catch((err) => {
+                    throw new Error(err)
+                })
+        })
+        .catch((err) => {
+            res.status(600).json({
+                Error: err,
+            });
+        });
+};
+
