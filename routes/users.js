@@ -10,6 +10,8 @@ const userController = require('../controllers/users');
 
 router.post('/signup', userController.user_signUp);
 
+router.post('/signup2', upload.single('userImage'), userController.user_signUp2);
+
 router.post('/login', userController.user_login);
 
 router.delete('/:userId', userController.user_delete);

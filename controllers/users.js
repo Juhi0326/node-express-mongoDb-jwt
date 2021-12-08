@@ -65,6 +65,65 @@ exports.user_signUp = (req, res, next) => {
     });
 };
 
+exports.user_signUp2 = (req, res, next) => {
+  if (req.body.password === '') {
+    return res.status(409).json({
+      message: 'missing password',
+    });
+  }
+  /*Min character = 6
+  Max character = 10
+  Min 1 lowercase character
+  Min 1 uppercase character
+  Min 1 number
+  Min 1 special characters */
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,10}$/g
+  if (pattern.test(req.body.password) === false) {
+    return res.status(409).json({
+      message: 'invalid password',
+    });
+  }
+  User.find({ email: req.body.email })
+    .exec()
+    .then((user) => {
+      if (user.length >= 1) {
+        return res.status(409).json({
+          message: 'Email is already exist!',
+        });
+      } else {
+        bcrypt.hash(req.body.password, 10, (err, hash) => {
+          if (err) {
+            return res.status(500).json({
+              Error: err,
+            });
+          } else {
+            const user = new User({
+              _id: new mongoose.Types.ObjectId(),
+              userName: req.body.userName,
+              email: req.body.email,
+              password: hash,
+              role: req.body.role,
+              imagePath: req.file.path
+            });
+            user
+              .save()
+              .then((result) => {
+                res.status(201).json({
+                  message: 'user created!',
+                });
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).json({
+                  Error: err,
+                });
+              });
+          }
+        });
+      }
+    });
+};
+
 exports.user_login = (req, res, next) => {
   User.find({ email: req.body.email })
     .exec()

@@ -27,7 +27,8 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     max: 64
-  }
+  },
+  imagePath: { type: String},
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
