@@ -431,3 +431,76 @@ exports.change_user_data_by_userId = async (req, res, next) => {
   }
 }
 
+exports.change_user_myData_by_myUserId = async (req, res, next) => {
+  let oldImage = null
+  let updateOps = {}
+  const id = req.params.userId
+  console.log(id)
+  let hash = null
+  try {
+    await User.findById(id).then((user) => {
+      if (!user) {
+        throw new Error('user not found')
+      }
+      updateOps = { ...updateOps, ...user._doc }
+      console.log(updateOps)
+      if (req.body.role) {
+        throw new Error('changing role is not accepted!')
+      }
+      if (req.body.password) {
+        bcrypt.genSalt(10, function (err, salt) {
+          if (err) {
+            throw new Error(err.message)
+          }
+          bcrypt.hash(req.body.password, salt, function (err, hash) {
+            if (err) {
+              throw new Error(err.message)
+            }
+            console.log(hash)
+            updateOps.password = hash
+            console.log(updateOps.password)
+            req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
+            req.body.email ? updateOps.email = req.body.email : updateOps.email
+            if (req.file) {
+              oldImage = updateOps.imagePath
+              updateOps.imagePath = req.file.path
+            }
+            User.findOneAndUpdate({ _id: id }, updateOps)
+              .then(() => {
+                if (req.file) {
+                  deleteImageFromServer(oldImage)
+                }
+                res.status(200).json("user updated")
+
+              })
+              .catch((err) => {
+                throw new Error(err.message)
+              }
+              )
+          })
+        })
+      } else {
+        req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
+        req.body.email ? updateOps.email = req.body.email : updateOps.email
+        if (req.file) {
+          oldImage = updateOps.imagePath
+          updateOps.imagePath = req.file.path
+        }
+        User.findOneAndUpdate({ _id: id }, updateOps)
+          .then(() => {
+            deleteImageFromServer(oldImage)
+            res.status(200).json("user updated")
+          })
+          .catch((err) => {
+            throw new Error(err.message)
+          }
+          )
+      }
+    })
+  } catch (error) {
+    return res.status(404).json({
+      message: error.message
+    });
+  }
+}
+
