@@ -24,4 +24,6 @@ router.get('/', adminAuthMiddleware, userController.user_get_all)
 
 router.get('/my-orders/:userId', userAuthMiddleware, userController.order_get_all_by_userId)
 
+router.patch('/admin/:userId', upload.single('userImage'), adminAuthMiddleware, userController.change_user_data_by_userId )
+
 module.exports = router;

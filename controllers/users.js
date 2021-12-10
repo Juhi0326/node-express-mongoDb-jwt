@@ -5,6 +5,7 @@ const User = require('../models/user');
 const Order = require('../models/order');
 const loadash = require('lodash');
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('../modules/email');
+const { deleteImageFromServer } = require('../modules/services/imageService');
 
 
 exports.user_signUp = (req, res, next) => {
@@ -181,7 +182,7 @@ exports.user_get_all = (req, res, next) => {
         users: docs.map((doc) => {
           return {
             userName: doc.userName,
-            email:doc.email,
+            email: doc.email,
             role: doc.role,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
@@ -233,46 +234,46 @@ exports.sendPasswordResetEmail = async (req, res) => {
   const { email } = req.body
   let user
   try {
-    user = await User.findOne({ email }).exec().then((user)=> {
+    user = await User.findOne({ email }).exec().then((user) => {
       const token = usePasswordHashToMakeToken(user)
       const url = getPasswordResetURL(user, token)
-  const emailTemplate = resetPasswordTemplate(user, url)
+      const emailTemplate = resetPasswordTemplate(user, url)
 
 
-  let mailOptions = {
-    from: 'NOREPLY',
-    to: user.email,
-    subject: 'password reset link',
-    html: `
+      let mailOptions = {
+        from: 'NOREPLY',
+        to: user.email,
+        subject: 'password reset link',
+        html: `
     <p>Hey ${user.userName || user.email},</p>
     <p>We heard that you lost your password. Sorry about that!</p>
     <p>But don’t worry! You can use the following link to reset your password:</p>
     <a href=${url}>${url}</a>
     <p>If you don’t use this link within 1 hour, it will expire.</p>
     `
-  }
-  transporter.sendMail(mailOptions, function (err, data) {
-    if (err) {
-      console.log(err)
-      return res.status(500).json({
-        messages: 'Error sending email!',
-      });
-    } else {
-      console.log('email sent!')
-      return res.status(200).json({
-        messages: 'email sent!',
-      });
-    }
-  })
+      }
+      transporter.sendMail(mailOptions, function (err, data) {
+        if (err) {
+          console.log(err)
+          return res.status(500).json({
+            messages: 'Error sending email!',
+          });
+        } else {
+          console.log('email sent!')
+          return res.status(200).json({
+            messages: 'email sent!',
+          });
+        }
+      })
     }).catch((err) => {
       console.log(err)
       throw new Error('nincs ilyen email cím')
     })
-    
+
   } catch (err) {
     return res.status(404).json({
       Error: err.message
-    }) 
+    })
   }
 }
 
@@ -338,17 +339,17 @@ exports.order_get_all_by_userId = async (req, res, next) => {
   Order.find()
     .select('-__v')
     .exec()
-    .then((orders)=> {
+    .then((orders) => {
       res.status(200).json({
         count: orders.length,
         orders: orders.map((doc) => {
           let myOrders = orders.filter(order => JSON.stringify(id) === JSON.stringify(order.user));
           if (loadash.isEmpty(myOrders) === true) {
-           throw new Error('There is no order with this user')
-        }
-            return {
-              myOrders
-            };
+            throw new Error('There is no order with this user')
+          }
+          return {
+            myOrders
+          };
         }),
       });
     }).catch((err) => {
@@ -356,5 +357,77 @@ exports.order_get_all_by_userId = async (req, res, next) => {
         Error: err.message,
       });
     })
+}
+
+exports.change_user_data_by_userId = async (req, res, next) => {
+  let oldImage = null
+  let updateOps = {}
+  const id = req.params.userId
+  console.log(id)
+  let hash = null
+  try {
+    await User.findById(id).then((user) => {
+      if (!user) {
+        throw new Error('user not found')
+      }
+      updateOps = { ...updateOps, ...user._doc }
+      console.log(updateOps)
+      if (req.body.password) {
+        bcrypt.genSalt(10, function (err, salt) {
+          if (err) {
+            throw new Error(err.message)
+          }
+          bcrypt.hash(req.body.password, salt, function (err, hash) {
+            if (err) {
+              throw new Error(err.message)
+            }
+            console.log(hash)
+            updateOps.password = hash
+            console.log(updateOps.password)
+            req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
+            req.body.email ? updateOps.email = req.body.email : updateOps.email
+            req.body.role ? updateOps.role = req.body.role : updateOps.role
+            if (req.file) {
+              oldImage = updateOps.imagePath
+              updateOps.imagePath = req.file.path
+            }
+            User.findOneAndUpdate({ _id: id }, updateOps)
+              .then(() => {
+                if (req.file) {
+                  deleteImageFromServer(oldImage)
+                }
+                res.status(200).json("user updated")
+
+              })
+              .catch((err) => {
+                throw new Error(err.message)
+              }
+              )
+          })
+        })
+      } else {
+        req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
+        req.body.email ? updateOps.email = req.body.email : updateOps.email
+        req.body.role ? updateOps.role = req.body.role : updateOps.role
+        if (req.file) {
+          oldImage = updateOps.imagePath
+          updateOps.imagePath = req.file.path
+        }
+        User.findOneAndUpdate({ _id: id }, updateOps)
+          .then(() => {
+            deleteImageFromServer(oldImage)
+            res.status(200).json("user updated")
+          })
+          .catch((err) => {
+            throw new Error(err.message)
+          }
+          )
+      }
+    })
+  } catch (error) {
+    return res.status(404).json({
+      message: error.message
+    });
+  }
 }
 
