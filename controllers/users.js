@@ -73,12 +73,12 @@ exports.user_signUp2 = (req, res, next) => {
     });
   }
   /*Min character = 6
-  Max character = 10
+  Max character = 20
   Min 1 lowercase character
   Min 1 uppercase character
   Min 1 number
   Min 1 special characters */
-  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,10}$/g
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[ -/:-@\[-`{-~]).{6,20}$/g
   if (pattern.test(req.body.password) === false) {
     return res.status(409).json({
       message: 'invalid password',
