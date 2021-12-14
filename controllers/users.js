@@ -157,6 +157,9 @@ exports.user_login = (req, res, next) => {
             accessToken: token,
             userName: user[0].userName,
             role: user[0].role,
+            userImage: user[0].imagePath,
+            email: user[0].email,
+            userId: user[0]._id
           });
         }
         res.status(404).json({
@@ -207,7 +210,7 @@ exports.user_delete = (req, res, next) => {
   User.deleteOne({ _id: req.params.userId })
     .exec()
     .then((result) => {
-      res.status(201).json({
+      res.status(200).json({
         message: 'User is deleted.',
       });
     })
@@ -393,7 +396,7 @@ exports.change_user_data_by_userId = async (req, res, next) => {
             }
             User.findOneAndUpdate({ _id: id }, updateOps)
               .then(() => {
-                if (req.file) {
+                if (oldImage !== null) {
                   deleteImageFromServer(oldImage)
                 }
                 res.status(200).json("user updated")
@@ -415,7 +418,9 @@ exports.change_user_data_by_userId = async (req, res, next) => {
         }
         User.findOneAndUpdate({ _id: id }, updateOps)
           .then(() => {
-            deleteImageFromServer(oldImage)
+            if (oldImage !== null) {
+              deleteImageFromServer(oldImage)
+            }
             res.status(200).json("user updated")
           })
           .catch((err) => {
