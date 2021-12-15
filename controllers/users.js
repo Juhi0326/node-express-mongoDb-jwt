@@ -199,6 +199,34 @@ exports.user_get_all = (req, res, next) => {
       };
       res.status(200).json(response);
     })
+    .catch((err) => {0
+      res.status(500).json({
+        Error: err,
+      });
+    })
+}
+
+exports.user_get_by_id = (req, res, next) => {
+  const id = req.params.userId;
+  User.findById(id)
+    .exec()
+    .then((doc) => {
+      if (!doc) {
+        throw new Error('There is no user with this id!')
+      }    
+      res.status(200).json({
+        userName: doc.userName,
+            email: doc.email,
+            role: doc.role,
+            createdAt: doc.createdAt,
+            updatedAt: doc.updatedAt,
+            _id: doc._id,
+            request: {
+              type: 'GET',
+              url: 'http://localhost:8081/users/' + doc._id, 
+          }
+      });
+    })
     .catch((err) => {
       res.status(500).json({
         Error: err,
@@ -493,7 +521,10 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
         }
         User.findOneAndUpdate({ _id: id }, updateOps)
           .then(() => {
-            deleteImageFromServer(oldImage)
+            if (req.file) {
+              deleteImageFromServer(oldImage)
+            }
+            
             res.status(200).json("user updated")
           })
           .catch((err) => {

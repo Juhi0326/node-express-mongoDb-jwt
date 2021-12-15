@@ -22,6 +22,8 @@ router.post('/receive_new_password/:userId/:token', userController.receiveNewPas
 
 router.get('/', adminAuthMiddleware, userController.user_get_all)
 
+router.get('/:userId', userAuthMiddleware, userController.user_get_by_id)
+
 router.get('/my-orders/:userId', userAuthMiddleware, userController.order_get_all_by_userId)
 
 router.patch('/admin/:userId', upload.single('userImage'), adminAuthMiddleware, userController.change_user_data_by_userId )
