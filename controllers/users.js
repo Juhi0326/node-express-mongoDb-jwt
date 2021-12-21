@@ -220,7 +220,8 @@ exports.user_get_by_id = (req, res, next) => {
             role: doc.role,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
-            _id: doc._id,
+            userImage: doc.imagePath,
+            userId: doc._id,
             request: {
               type: 'GET',
               url: 'http://localhost:8081/users/' + doc._id, 
@@ -465,7 +466,7 @@ exports.change_user_data_by_userId = async (req, res, next) => {
 }
 
 exports.change_user_myData_by_myUserId = async (req, res, next) => {
-  let oldImage = null
+  let oldImage =null
   let updateOps = {}
   const id = req.params.userId
   console.log(id)
@@ -492,19 +493,23 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
             console.log(hash)
             updateOps.password = hash
             console.log(updateOps.password)
-            req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
-            req.body.email ? updateOps.email = req.body.email : updateOps.email
-            if (req.file) {
+            if (req.body.userName && req.body.userName !=='null') {
+              updateOps.userName = req.body.userName
+            } 
+            if (req.body.email && req.body.email !=='null') {
+              updateOps.email = req.body.email
+            }
+            if (req.file) { 
               oldImage = updateOps.imagePath
               updateOps.imagePath = req.file.path
             }
             User.findOneAndUpdate({ _id: id }, updateOps)
-              .then(() => {
+              .then((response) => {
                 if (req.file) {
                   deleteImageFromServer(oldImage)
                 }
+                console.log(response)
                 res.status(200).json("user updated")
-
               })
               .catch((err) => {
                 throw new Error(err.message)
@@ -513,8 +518,12 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
           })
         })
       } else {
-        req.body.userName ? updateOps.userName = req.body.userName : updateOps.userName
-        req.body.email ? updateOps.email = req.body.email : updateOps.email
+        if (req.body.userName && req.body.userName !=='null') {
+          updateOps.userName = req.body.userName
+        } 
+        if (req.body.email && req.body.email !=='null') {
+          updateOps.email = req.body.email
+        }
         if (req.file) {
           oldImage = updateOps.imagePath
           updateOps.imagePath = req.file.path
