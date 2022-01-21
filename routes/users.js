@@ -30,4 +30,8 @@ router.patch('/admin/:userId', upload.single('userImage'), adminAuthMiddleware, 
 
 router.patch('/:userId', upload.single('userImage'), userAuthMiddleware, userController.change_user_myData_by_myUserId)
 
+router.patch('/cart/:userId',  userAuthMiddleware, userController.change_user_cart_by_myUserId)
+
+router.get('/cart/:userId',userAuthMiddleware,userController.get_cart_ByUserId )
+
 module.exports = router;

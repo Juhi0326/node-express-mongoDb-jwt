@@ -28,6 +28,12 @@ const userSchema = mongoose.Schema({
     required: true,
     max: 64
   },
+  cart: {
+    type: Object,
+    default: {
+      items: [],
+    }
+  },
   imagePath: { type: String},
 }, { timestamps: true });
 

@@ -97,14 +97,17 @@ exports.user_signUp2 = (req, res, next) => {
             return res.status(500).json({
               Error: err,
             });
-          } else {
+          }
+          if (req.file) {
+            //user with image
             const user = new User({
               _id: new mongoose.Types.ObjectId(),
               userName: req.body.userName,
               email: req.body.email,
               password: hash,
               role: req.body.role,
-              imagePath: req.file.path
+              imagePath: req.file.path,
+              cart: {}
             });
             user
               .save()
@@ -119,7 +122,36 @@ exports.user_signUp2 = (req, res, next) => {
                   Error: err,
                 });
               });
+          } else {
+            //user without image
+            const user = new User({
+              _id: new mongoose.Types.ObjectId(),
+              userName: req.body.userName,
+              email: req.body.email,
+              password: hash,
+              role: req.body.role,
+              cart: {
+                items: [],
+                userId: ''
+              }
+            });
+            user
+              .save()
+              .then((result) => {
+                console.log(result)
+                res.status(201).json({
+                  message: 'user created!',
+                });
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).json({
+                  Error: err,
+                });
+              });
           }
+
+
         });
       }
     });
@@ -159,7 +191,8 @@ exports.user_login = (req, res, next) => {
             role: user[0].role,
             userImage: user[0].imagePath,
             email: user[0].email,
-            userId: user[0]._id
+            userId: user[0]._id,
+            cart: user.cart
           });
         }
         res.status(404).json({
@@ -199,7 +232,8 @@ exports.user_get_all = (req, res, next) => {
       };
       res.status(200).json(response);
     })
-    .catch((err) => {0
+    .catch((err) => {
+      0
       res.status(500).json({
         Error: err,
       });
@@ -213,19 +247,19 @@ exports.user_get_by_id = (req, res, next) => {
     .then((doc) => {
       if (!doc) {
         throw new Error('There is no user with this id!')
-      }    
+      }
       res.status(200).json({
         userName: doc.userName,
-            email: doc.email,
-            role: doc.role,
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-            userImage: doc.imagePath,
-            userId: doc._id,
-            request: {
-              type: 'GET',
-              url: 'http://localhost:8081/users/' + doc._id, 
-          }
+        email: doc.email,
+        role: doc.role,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+        userImage: doc.imagePath,
+        userId: doc._id,
+        request: {
+          type: 'GET',
+          url: 'http://localhost:8081/users/' + doc._id,
+        }
       });
     })
     .catch((err) => {
@@ -466,7 +500,7 @@ exports.change_user_data_by_userId = async (req, res, next) => {
 }
 
 exports.change_user_myData_by_myUserId = async (req, res, next) => {
-  let oldImage =null
+  let oldImage = null
   let updateOps = {}
   const id = req.params.userId
   console.log(id)
@@ -493,13 +527,13 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
             console.log(hash)
             updateOps.password = hash
             console.log(updateOps.password)
-            if (req.body.userName && req.body.userName !=='null') {
+            if (req.body.userName && req.body.userName !== 'null') {
               updateOps.userName = req.body.userName
-            } 
-            if (req.body.email && req.body.email !=='null') {
+            }
+            if (req.body.email && req.body.email !== 'null') {
               updateOps.email = req.body.email
             }
-            if (req.file) { 
+            if (req.file) {
               oldImage = updateOps.imagePath
               updateOps.imagePath = req.file.path
             }
@@ -518,10 +552,10 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
           })
         })
       } else {
-        if (req.body.userName && req.body.userName !=='null') {
+        if (req.body.userName && req.body.userName !== 'null') {
           updateOps.userName = req.body.userName
-        } 
-        if (req.body.email && req.body.email !=='null') {
+        }
+        if (req.body.email && req.body.email !== 'null') {
           updateOps.email = req.body.email
         }
         if (req.file) {
@@ -533,7 +567,7 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
             if (req.file) {
               deleteImageFromServer(oldImage)
             }
-            
+
             res.status(200).json("user updated")
           })
           .catch((err) => {
@@ -548,4 +582,55 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
     });
   }
 }
+
+exports.change_user_cart_by_myUserId = async (req, res, next) => {
+  let cart = {}
+  const id = req.params.userId
+  console.log(id)
+  try {
+    await User.findById(id).then((user) => {
+      if (!user) {
+        throw new Error('user not found')
+      }
+      cart = { ...cart, ...req.body }
+      console.log(cart)
+        User.updateOne({ _id: id }, { $set: {cart} })
+          .then(() => {
+            res.status(200).json("cart is updated")
+          })
+          .catch((err) => {
+            throw new Error(err.message)
+          }
+          )
+    })
+  } catch (error) {
+    return res.status(404).json({
+      message: error.message
+    });
+  }
+}
+
+exports.get_cart_ByUserId = (req, res, next) => {
+  const id = req.params.userId;
+  User.findById(id)
+      .select('-__v')
+      .exec()
+      .then((doc) => {
+          if (doc) {
+              console.log(doc.cart);
+              res.status(200).json({
+                  cart: doc.cart,
+              });
+          } else {
+              res.status(404).json({
+                  message: 'There is no user with this id!',
+              });
+          }
+      })
+      .catch((err) => {
+          res.status(500).json({
+              error: err,
+          });
+      });
+};
 
