@@ -107,7 +107,9 @@ exports.user_signUp2 = (req, res, next) => {
               password: hash,
               role: req.body.role,
               imagePath: req.file.path,
-              cart: {}
+              cart: {
+                items: [],
+              }
             });
             user
               .save()
@@ -132,7 +134,6 @@ exports.user_signUp2 = (req, res, next) => {
               role: req.body.role,
               cart: {
                 items: [],
-                userId: ''
               }
             });
             user
