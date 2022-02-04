@@ -1,14 +1,10 @@
 require('dotenv').config({ path: '.env' });
 const express = require('express');
 const app = express();
-const productRoutes = require('./routes/productRoutes');
 const product2Routes = require('./routes/product2Routes')
 const orderRoutes = require('./routes/orders');
 const userRoutes = require('./routes/users');
 const homePageRoutes = require('./routes/homaPage2');
-const homeRoute= require('./routes/home');
-const homeSetup = require('./routes/homeSetup');
-const imageSetupRoutes = require('./routes/image');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 
@@ -24,10 +20,8 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true,  useF
 
 app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 
@@ -41,11 +35,8 @@ app.use((req, res, next) => {
 });
 app.use('/uploads', express.static('uploads'));
 
-app.use('/home', homeRoute);
+
 app.use('/homePage', homePageRoutes);
-app.use('/home-setup', homeSetup);
-app.use('/image-setup', imageSetupRoutes);
-app.use('/products', productRoutes);
 app.use('/products2', product2Routes);
 app.use('/orders', orderRoutes);
 app.use('/users', userRoutes);

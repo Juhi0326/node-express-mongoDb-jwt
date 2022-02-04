@@ -1,5 +1,5 @@
 const Order = require('../models/order');
-const Product = require('../models/product');
+const Product = require('../models/product2');
 const User = require('../models/user')
 const loadash = require('lodash');
 const mongoose = require('mongoose');
