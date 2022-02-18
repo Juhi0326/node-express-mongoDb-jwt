@@ -457,7 +457,7 @@ exports.change_user_myData_by_myUserId = async (req, res, next) => {
       if (req.body.role) {
         throw new Error('changing role is not accepted!')
       }
-      if (req.body.password) {
+      if (req.body.password && req.body.password != 'null') {
         bcrypt.genSalt(10, function (err, salt) {
           if (err) {
             throw new Error(err.message)
