@@ -10,7 +10,7 @@ const morgan = require('morgan');
 
 
 // database connection
-const dbURI = `mongodb+srv://juhi:${process.env.dbPass}@cluster0.hnfsi.mongodb.net/express-API?retryWrites=true&w=majority`;
+const dbURI = process.env.URI;
 
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true,  useFindAndModify: false, useCreateIndex:true })
   .then((result) => {

@@ -1,0 +1,31 @@
+# version: "3.8" no longer needed
+
+services:
+  app:
+    container_name: sajatApp
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - MONGODB_URI=${URI}
+      - MONGODB_DATABASE=${dbName}
+    volumes:
+      - .:/app
+      - /app/node_modules/
+    depends_on:
+      - db
+    links:
+      - db
+
+  db:
+    container_name: mongodb
+    image: mongo:latest
+    restart: always
+    command: mongod
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${dbUser}
+      MONGO_INITDB_ROOT_PASSWORD: ${dbPass}
+      MONGO_INITDB_DATABASE: ${dbName}
+    ports:
+      - 27017:27017
